@@ -1,0 +1,974 @@
+PROCEDURE consGame
+     (* consTrek 19 - serial terminal game for 6x09
+     (* Trek skin -  @ ai fixes
+     DIM gscan(2,64):STRING[64]
+     DIM fscan(3):STRING[32]
+     DIM tscan(2,8):STRING[8]
+     DIM spaces:STRING[8]
+     DIM dashes:STRING[28]
+     DIM teststr2,teststr:STRING[12]
+     DIM prnstr,sysname,trbname:STRING[80]
+     DIM tstr(3):STRING[4]
+     DIM char,systI(6):STRING[1]
+     DIM random(3),dist,dist0,dtmp1,dtmp2,glxX,glxY:REAL
+     DIM playS(8,12),playM(8,3):INTEGER
+     DIM playX(8),playY(8),playI(8),playC(8),syst(6):INTEGER
+     DIM comp(8),range(8),target(8),tint(3),rint(3),sint(3),pint(3):INTEGER
+     DIM tribeN(4),playN(8),playR(12):STRING[8]
+     DIM tmp,tmp0,tmp1,tmp2,tmp3,scanx,scany,testx,testy:INTEGER
+     DIM randl,rlmt,lloop,mloop,xloop,yloop:INTEGER
+     DIM cmd,cmd0,pin,tcnt,quadX,quadY,tmpX,tmpY:INTEGER
+     DIM me,play,dmax,glvl,targ,targ0,token,xstep,ystep:INTEGER
+     DIM flags(6),played(8),hosted(8):BOOLEAN
+     PRINT "Creating Galaxy. please wait..."
+     flags(1):=FALSE \flags(2):=FALSE \flags(3):=FALSE
+     flags(4):=TRUE \flags(5):=FALSE \flags(6):=FALSE
+     FOR lloop=1 TO 8
+       played(lloop):=FALSE \hosted(lloop):=TRUE
+     NEXT lloop
+     RESTORE 9993 \sysname:=" "
+     FOR lloop:=1 TO 6
+       READ teststr,syst(lloop)
+       sysname:=sysname+" "+teststr
+     NEXT lloop
+     RESTORE 9994 \trbname:=" "
+     FOR lloop=1 TO 4
+       READ tribeN(lloop) \trbname:=trbname+tribeN(lloop)+" "
+     NEXT lloop
+     me:=1
+     playN(1):="rick" \(* INPUT "What is your name (8 CHAR)";playN(1)
+     RESTORE 9990 \ FOR lloop=2 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
+     RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
+     FOR yloop:=1 TO 8
+       FOR xloop:=1 TO 12
+         playS(yloop,xloop):=80
+       NEXT xloop
+       FOR xloop=1 TO 3
+         playM(yloop,xloop):=100
+       NEXT xloop
+       playI(yloop):=(RND(3)+1)*-1
+     NEXT yloop
+     playI(1):=4
+     dashes:="--------------" \spaces:="        "
+     dashes:=dashes+dashes
+     FOR yloop=1 TO 64
+       gscan(1,yloop):="" \gscan(2,yloop):=""
+       FOR xloop=1 TO 64
+         gscan(1,yloop):=gscan(1,yloop)+" "
+         gscan(2,yloop):=gscan(2,yloop)+CHR$(0)
+       NEXT xloop
+     NEXT yloop
+     glvl1:=1 \playX(me):=4 \playY(me):=4
+     testx:=4 \testy:=4 \ GOSUB 9007
+     fscan(1):="" \fscan(2):="" \fscan(3):=""
+     (* tmp0:=planets \tmp1:=ptech \tmp2:=otech \tmp3:=gtech
+     FOR mloop=1 TO syst(1) \(* create the galactic core
+       LOOP 
+         tmp:=MOD(mloop,3)
+         IF tmp=0 THEN 
+           testx:=INT(RND(63)+1)
+           testy:=INT(RND(63)+1)
+         ENDIF 
+         IF tmp=1 THEN 
+           testx:=INT(RND(47)+9)
+           testy:=INT(RND(47)+9)
+         ENDIF 
+         IF tmp=2 THEN 
+           testx:=INT(RND(31)+15)
+           testy:=INT(RND(31)+15)
+         ENDIF 
+       EXITIF MID$(gscan(1,testy),testx,1)=" " THEN 
+         IF syst(2)>0 THEN 
+           tmp0:=0
+           char:="o" \syst(2):=syst(2)-1 \tmp1:=1 \tmp2:=3
+         ELSE 
+           IF syst(3)>0 THEN 
+             char:="@" \syst(3):=syst(3)-1 \tmp1:=1 \tmp2:=5
+           ELSE 
+             IF syst(4)>0 THEN 
+               char:="O" \syst(4):=syst(4)-1 \tmp1:=4 \tmp2:=5
+             ELSE 
+               IF syst(5)>0 THEN 
+                 char:="Q" \syst(5):=syst(5)-1 \tmp0:=2 \tmp1:=5\tmp2:=4
+               ELSE 
+                 char:="*" \tmp0:=1 \tmp1:=0 \tmp2:=0
+               ENDIF 
+             ENDIF 
+           ENDIF 
+         ENDIF 
+         tint(1):=0 \tint(2):=0 \tint(3):=0
+         IF tmp0>0 THEN tint(1):=RND(tmp0) \ ENDIF 
+         IF tmp1>0 THEN tint(2):=RND(tmp1) \ ENDIF 
+         IF tmp2>0 THEN tint(3):=RND(tmp2) \ ENDIF 
+         glvl:=1 \ GOSUB 9000 \ GOSUB 9009
+       ENDEXIT 
+       ENDLOOP 
+     NEXT mloop
+     FOR xloop=1 TO syst(6)
+       FOR lloop:=1 TO 3
+         random(lloop):=RND(0)*1.0E+09
+       NEXT lloop
+       GOSUB 9004
+       tint(1):=2 \tint(2):=5 \tint(3):=5
+       char:=LEFT$(tribeN(xloop),1)
+       glvl:=1 \ GOSUB 9000 \ GOSUB 9009
+     NEXT xloop
+     
+500  (* AI or network player add
+     (* random gen AI players
+     FOR lloop=2 TO 8
+       GOSUB 9004
+       char:=LEFT$(playN(lloop),1)
+       playX(lloop):=testx \playY(lloop):=testy
+       glvl:=1 \ GOSUB 9000
+     NEXT lloop
+     me:=1 \(* token:=RND(7)
+     (* end create galaxy ------------------------------------
+     
+1000 (* play loop ___________________________________________________
+     PRINT  \ PRINT  \ PRINT 
+     LOOP 
+       FOR lloop=1 TO 8
+         IF played(lloop)=FALSE THEN 1010
+       NEXT lloop
+       (* end of round, reset
+       IF flags(2)=TRUE THEN 
+         PRINT "----- end round -----"
+       ENDIF 
+       FOR lloop=1 TO 8
+         played(lloop):=FALSE
+       NEXT lloop \(* fall into 1010
+1010   LOOP 
+         token:=INT(RND(8)+1)
+       EXITIF played(token)=FALSE THEN 
+         played(token):=TRUE \randl:=0
+         FOR lloop:=1 TO 3
+           random(lloop):=RND(0)*1.0E+09
+         NEXT lloop
+       ENDEXIT 
+       ENDLOOP 
+1020   IF playI(token)<0 THEN 
+         GOSUB 3000 \(* AI picks enemies
+       ELSE 
+         IF token<>me THEN 
+           (* other players
+         ENDIF 
+         (* start term display
+         FOR lloop=1 TO 3
+           fscan(lloop):=" "
+         NEXT lloop
+         tcnt:=1
+         FOR yloop=1 TO 8
+           playC(yloop):=0
+           FOR lloop=1 TO 12
+             IF playS(yloop,lloop)<0 THEN  \playS(yloop,lloop):=0\ ENDIF 
+             IF playS(yloop,lloop)>100 THEN  \playS(yloop,lloop):=100 \ ENDIF 
+             playC(yloop):=playC(yloop)+playS(yloop,lloop)
+           NEXT lloop
+         NEXT yloop
+         GOSUB 9011
+1030     (* long scan
+         FOR tmpY=quadY-1 TO quadY+1
+           FOR tmpX=quadX-1 TO quadX+1
+             IF tmpX<1 OR tmpX>8 OR tmpY<1 OR tmpY>8 THEN 
+               fscan(tcnt):=fscan(tcnt)+"****** "
+             ELSE 
+               tmp1:=0 \tmp2:=0 \tmp3:=0
+               glxX:=tmpX*8-7 \glxY:=tmpY*8-7
+               FOR lloop=1 TO 8
+                 tscan(1,lloop):=MID$(gscan(1,glxY),glxX,8)
+                 glxY:=glxY+1
+               NEXT lloop
+               FOR yloop=1 TO 8
+                 FOR xloop=1 TO 8
+                   char:=MID$(tscan(1,yloop),xloop,1)
+                   IF SUBSTR(char,"*o@")>0 THEN  \tmp1:=tmp1+1 \ ENDIF 
+                   IF SUBSTR(char,"#OQ")>0 THEN  \tmp2:=tmp2+1 \ ENDIF 
+                   IF ASC(char)>96 AND ASC(char)<122 THEN 
+                     (* IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
+                     tmp3:=tmp3+1
+                   ENDIF 
+                 NEXT xloop
+               NEXT yloop
+               IF tmp1<10 THEN 
+                 fscan(tcnt):=fscan(tcnt)+" "
+               ENDIF 
+               fscan(tcnt):=fscan(tcnt)+STR$(tmp1)+"."+STR$(tmp2)
+               fscan(tcnt):=fscan(tcnt)+"."+STR$(tmp3)+" "
+             ENDIF 
+           NEXT tmpX
+           tcnt:=tcnt+1
+         NEXT tmpY
+1050     PRINT  \ PRINT spaces; "Quad: "; quadX; ","; quadY; 
+         PRINT spaces; spaces; "Nearby Quads: *o@.#OQ.other"
+         (* short scan ___________________________________
+         glvl:=1
+         FOR lloop=1 TO 8
+           testx:=playX(lloop) \testy:=playY(lloop)
+           char:=LEFT$(playN(lloop),1) \ GOSUB 9000
+         NEXT lloop
+         tcnt:=1 \glxX:=quadX*8-7 \glxY:=quadY*8-7 \(* top left
+         FOR yloop=glxY TO glxY+7
+           tscan(1,tcnt):=MID$(gscan(1,yloop),glxX,8) \tcnt:=tcnt+1
+         NEXT yloop
+         PRINT dashes
+         FOR yloop=1 TO 8
+           PRINT "|  "; 
+           FOR xloop=1 TO 8
+             PRINT MID$(tscan(1,yloop),xloop,1); "  "; 
+           NEXT xloop
+           PRINT "|"; 
+           IF yloop=1 THEN  \ PRINT spaces; fscan(1) \ ENDIF 
+           IF yloop=2 THEN  \ PRINT spaces; fscan(2) \ ENDIF 
+           IF yloop=3 THEN  \ PRINT spaces; fscan(3) \ ENDIF 
+           IF yloop=4 THEN  \ PRINT  \ ENDIF 
+           IF yloop=5 THEN 
+             PRINT USING "3(s8<,i4>),s1>",playR(1),playS(me,1),playR(2),playS(me,2),playR(3),playS(me,3),"%"
+           ENDIF 
+           IF yloop=6 THEN 
+             PRINT USING "3(s8<,i4>),s1>",playR(4),playS(me,4),playR(5),playS(me,5),playR(6),playS(me,6),"%"
+           ENDIF 
+           IF yloop=7 THEN 
+             PRINT USING "3(s8<,i4>),s1>",playR(7),playS(me,7),playR(8),playS(me,8),playR(9),playS(me,9),"%"
+           ENDIF 
+           IF yloop=8 THEN 
+             PRINT USING "3(s8<,i4>),s1>",playR(10),playS(me,10),playR(11),playS(me,11),playR(12),playS(me,12),"%"
+           ENDIF 
+         NEXT yloop
+         PRINT dashes
+         glxX:=playX(me) \glxY:=playY(me)
+1060     PRINT  \ PRINT "Next Screen: "; 
+         PRINT " 1)Engine  2)Effector  3)Intel  4)Damage  5)Debug"; 
+         LOOP 
+           INPUT cmd
+           cmd:=MOD(cmd,6)
+         EXITIF cmd>0 THEN 
+         ENDEXIT 
+         ENDLOOP 
+         ON cmd GOSUB 2000,2100,2200,2300,2400
+       ENDIF 
+       IF flags(4)=FALSE THEN 
+         flags(4):=TRUE \ GOTO 1060
+       ENDIF 
+     ENDLOOP 
+     
+2000 (* engines
+     GOSUB 9013
+     INPUT " 1) Warp   2) Impulse ",cmd
+     cmd:=MOD(cmd,3)+10
+     PRINT spaces; "   autonav:" \ GOSUB 9100
+     testx:=playX(me) \testy:=playY(me) \ GOSUB 9007
+     IF MID$(gscan(1,glxY),glxX,1)<>" " THEN 
+       IF SUBSTR(char,"*o@OQ")>0 THEN 
+         tmp:=30 \tmp0:=me \tmp1:=1 \tmp2:=2 \ GOSUB 9005
+       ENDIF 
+       IF ASC(char)>96 AND ASC(char)<122 THEN 
+         (* hit another player
+         rlmt:=20 \ GOSUB 9010
+         playS(me,10):=playS(me,10)-randl \(* local damage
+         GOSUB 9002 \(* other player damage
+       ENDIF 
+       GOSUB 9001 \(* get clear of collision
+     ENDIF 
+     GOSUB 9014 \(* deposit player
+     RETURN 
+     
+2100 PRINT "   Effector:"
+     tmpX:=quadX \tmpY:=quadY
+     INPUT " 1) Phaser   2) Torpedo   3) Miner ",cmd
+     cmd:=MOD(cmd,4)+20
+     IF cmd=20 THEN  \ RETURN  \ ENDIF 
+     IF cmd=21 THEN  \(* Phaser - range around endpoint
+       GOSUB 9100
+       FOR yloop=glxY-1 TO glxY+1
+         FOR xloop=glxX-1 TO glxY-1
+           char:=MID$(gscan(1,yloop),xloop,1)
+           IF char<>" " THEN 
+             GOSUB 9002 \(* phaser hit
+           ENDIF 
+         NEXT xloop
+       NEXT yloop
+     ENDIF 
+     IF cmd=22 THEN  \(* ranged weapon 
+       glxY:=playY(me) \glxX:=playX(me)
+       GOSUB 9100
+       char:=MID$(gscan(1,glxY),glxX,1)
+       IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
+         GOSUB 9002 \(* ranged hit 
+       ENDIF 
+     ENDIF 
+     IF cmd=23 THEN 
+       glxY:=playY(me) \glxX:=playX(me) \ GOSUB 9100
+       (* tmp:=ASC(MID$(gscan(2,glxY),glxX,1)) \tint(1):=INT(tmp/100)            
+       (* tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint(2)*10
+       testx:=glxX \testy:=glxY \ GOSUB 9008
+       tmp:=ASC(MID$(gscan(2,playY(me)),playX(me),1)) \rint(1):=INT(tmp/100)
+       tmp:=tmp-rint(1)*100 \rint(2):=INT(tmp/10) \rint(3):=tmp-rint(2)*10
+       PRINT "Recoverable matl:    1) M/AM="; tint(1); "    2) Atom="; tint(2); "    3) Chem="; tint(3)
+       INPUT "   Select one:",tmp
+       tmp:=MOD(tmp,4) \ IF tmp=0 THEN  \ RETURN  \ ENDIF 
+       tmp0:=6 \ IF tmp1=1 THEN  \tmp0:=3 \ ENDIF 
+       FOR mloop=1 TO 5
+         IF tint(tmp)>0 AND tint(tmp)+rint(tmp)<tmp0 THEN 
+           tint(tmp):=tint(tmp)-1 \rint(tmp):=rint(tmp)+1
+         ENDIF 
+       NEXT mloop
+       tmp:=tint(1)*100+tint(2)*10+tint(3)
+       glvl:=2 \char:=CHR$(tmp) \testx:=glxX \testy:=glxY \ GOSUB 9000
+       tmp:=rint(1)*100+rint(2)*10+rint(3)
+       glvl:=2 \char:=CHR$(tmp) \testx:=playX(me) \testy:=playY(me) \ GOSUB 9000
+     ENDIF 
+     glvl:=1 \testx:=playX(me) \texty:=playY(me) \ GOSUB 9000
+     testx:=playX(me) \testy:=playY(me) \ GOSUB 9008
+     PRINT "   Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3)
+     RETURN 
+2200 PRINT "  Intel:"
+     teststr:="on " \ IF flags(1)=TRUE THEN  \teststr:="off" \ ENDIF            
+     PRINT " 1) Qprobe  2) Qscan  3) Scores  4) Legend "; teststr; 
+     INPUT " ",cmd
+     cmd:=MOD(cmd,5)+30
+     IF cmd=30 THEN  \ RETURN  \ ENDIF 
+     ON cmd-30 GOSUB 2210,2210,2220,2230
+     RETURN 
+2210 (* probes
+     glxX:=playX(me) \glxY:=playY(me) \glvl:=cmd-30
+     GOSUB 9100
+     IF track<dist THEN 
+       PRINT "probe destroyed."
+       RETURN 
+     ENDIF 
+     IF scanx=quadX OR scany=quadY THEN  \flags(4):=FALSE \ ENDIF            
+     testx:=glxX \testy:=glxY \ GOSUB 9007
+     tmp1:=me \scanx:=quadX \scany:=quadY
+     tcnt:=1 \glxX:=quadX*8-7 \glxY:=quadY*8-7
+     FOR yloop=glxY TO glxY+7
+       tscan(1,tcnt):=MID$(gscan(1,yloop),glxX,8)
+       tscan(2,tcnt):=MID$(gscan(2,yloop),glxX,8) \tcnt:=tcnt+1
+     NEXT yloop
+     FOR yloop=1 TO 8
+       FOR xloop=1 TO 8
+         IF cmd=31 THEN 
+           char:=MID$(tscan(1,yloop),xloop,1)
+           IF SUBSTR(char," *o@#")>0 THEN 
+             tmp0:=yloop \tmp1:=xloop
+             glvl:=1 \ GOSUB 2211
+           ELSE 
+             char:="."
+             rlmt:=8 \ GOSUB 9010
+             tmp0:=yloop+INT(randl-4)
+             IF tmp0<1 THEN  \tmp0:=1 \ ENDIF 
+             IF tmp0>8 THEN  \tmp0:=8 \ ENDIF 
+             rlmt:=9 \randl:=0 \ GOSUB 9010
+             tmp1:=xloop+INT(randl-4)
+             IF tmp1<1 THEN  \tmp1:=1 \ ENDIF 
+             IF tmp1>8 THEN  \tmp1:=8 \ ENDIF 
+             glvl:=1 \ GOSUB 2211
+           ENDIF 
+         ELSE 
+           char:=MID$(tscan(2,yloop),xloop,1)
+           tmp0:=yloop \tmp1:=xloop
+           glvl:=2 \ GOSUB 2211
+         ENDIF 
+       NEXT xloop
+     NEXT yloop
+     
+     tcnt:=1
+     FOR lloop=1 TO 8
+       comp(lloop):=0
+       tmp:=ABS(playX(lloop)-glxX)+ABS(playY(lloop)-glxY)
+       IF tmp<16 THEN 
+         comp(tcnt):=lloop \tcnt:=tcnt+1
+       ENDIF 
+     NEXT lloop
+     IF cmd=31 OR cmd=32 THEN 
+       PRINT  \ PRINT " Quadrant "; quadX; " "; quadY; 
+       IF cmd=31 THEN 
+         PRINT spaces; spaces; "Suspected nearby: "
+       ELSE 
+         PRINT sysname \ PRINT spaces; " number(no leading 0): m/am nuke chem "
+       ENDIF 
+       IF cmd=32 THEN  \ PRINT "  "; dashes;  \ ENDIF 
+       PRINT dashes
+       FOR yloop=1 TO 8
+         PRINT "| "; 
+         FOR xloop=1 TO 8
+           PRINT MID$(tscan(1,yloop),xloop,1); "  "; 
+           IF cmd=32 THEN 
+             tmp:=ASC(MID$(tscan(2,yloop),xloop,1))
+             IF tmp=0 THEN 
+               PRINT "   "; 
+             ELSE 
+               IF tmp<100 THEN  \ PRINT " ";  \ ENDIF 
+               IF tmp<10 THEN  \ PRINT " ";  \ ENDIF 
+               PRINT tmp; 
+             ENDIF 
+             PRINT "."; 
+           ENDIF 
+         NEXT xloop
+         PRINT " |    "; 
+         IF cmd=32 THEN  \ PRINT  \ ENDIF 
+         IF cmd=31 AND comp(yloop)>0 AND RND(10)<5 THEN 
+           IF comp(yloop)<>me THEN 
+             PRINT playN(comp(yloop)); 
+           ENDIF 
+         ENDIF 
+         PRINT 
+       NEXT yloop
+       IF cmd=32 THEN  \ PRINT "  "; dashes;  \ ENDIF 
+       PRINT dashes
+     ENDIF 
+     INPUT "next ",a$
+     glxX:=playX(me) \glxY:=playY(me)
+     testx:=playX(me) \testy:=playY(me) \ GOSUB 9007
+     RETURN 
+2211 teststr:=LEFT$(tscan(glvl,tmp0),tmp1-1)+char
+     tscan(glvl,yloop):=teststr+MID$(tscan(glvl,tmp0),tmp1+1,8)
+     RETURN 
+2220 (* player scores
+     FOR lloop=1 TO 8
+       PRINT "----- "; playN(lloop); "  Tribe: "; tribeN(ABS(playI(lloop)))
+       PRINT "  Vessel: "; playC(lloop); "  Cargo:  "; 
+       PRINT ASC(MID$(gscan(2,playY(lloop)),playX(lloop),1)); 
+       PRINT USING "2(s8<,i4>),s1>",playR(1),playS(lloop,1),playR(2),playS(lloop,2); "%"
+       PRINT 
+     NEXT lloop
+     INPUT a$
+     RETURN 
+2230 (* Legend flag
+     IF flags(1)=TRUE THEN 
+       flags(1):=FALSE
+     ELSE 
+       flags(1):=TRUE
+     ENDIF 
+     flags(4):=FALSE
+     RETURN 
+     
+2300 PRINT "  Damage Control:"
+     FOR mloop=1 TO 3 \tint(mloop):=0 \rint(mloop):=0 \NEXT mloop
+     flags(5):=FALSE \flags(6):=FALSE
+     IF playI(token)<0 THEN 
+       FOR mloop=1 TO 3
+         tint(mloop):=playM(token,mloop)
+         IF tint(mloop)>34 THEN  \tint(mloop):=34 \ ENDIF 
+       NEXT mloop
+     ELSE 
+       IF token=me THEN 
+         PRINT " Matl in stock: MAM:"; playM(me,1); " Atm:"; playM(me,2); " Chm:"; playM(me,3)
+         testx:=playX(me) \testy:=playY(me) \ GOSUB 9008
+         PRINT " Cargo in hold:   MAM:"; tint(1); " Atm"; tint(2); " Chm:"; tint(3)
+         PRINT "Divide 100 units time between 6 repair tasks:"
+         RESTORE 9992
+         FOR mloop=1 TO 3
+           rint(mloop):=0 \ READ prnstr \ PRINT prnstr; 
+           IF flags(5)=FALSE THEN  \ INPUT tint(mloop) \ ENDIF 
+           PRINT "   Refine raw:"
+           IF flags(6)=FALSE THEN  \ INPUT rint(mloop) \ ENDIF 
+           tmp0:=tint(1)+tint(2)+tint(3)
+           tmp1:=rint(1)+rint(2)+rint(3)
+           IF tmp0>99 THEN  \tint(mloop):=tint(mloop)-(tmp0-100)\flags(5):=TRUE \ ENDIF 
+           IF tmp1>99 THEN  \rint(mloop):=rint(mloop)-(tmp1-100)\flags(6):=TRUE \ ENDIF 
+         NEXT mloop
+       ENDIF 
+     ENDIF 
+2305 FOR mloop=1 TO 3 \(* check unit and material constraits
+       IF playM(token,mloop)<tint(mloop) THEN 
+         tint(mloop):=playM(token,mloop)
+       ENDIF 
+     NEXT mloop
+     testx:=playX(me) \testy:=playY(me) \ GOSUB 9008
+     FOR mloop=1 TO 3 \pint(mloop):=tint(mloop) \NEXT mloop
+     FOR mloop=1 TO 100
+       FOR xloop:=1 TO 3
+         IF tint(xloop)>0 THEN 
+           FOR yloop=0 TO 10 STEP 3
+             IF playS(me,xloop+yloop)<100 THEN 
+               playS(me,xloop+yloop):=playS(me,xloop+yloop)+1
+               tint(xloop):=tint(xloop)-1 \rint(xloop):=rint(xloop)+1
+               IF MOD(mloop,4)=1 THEN  \(* use matl at 1/4 rate
+                 playM(token,xloop):=playM(token,xloop)-1
+               ENDIF 
+             ENDIF 
+           NEXT yloop
+         ENDIF 
+         IF rint(xloop)>0 THEN 
+           sint(xloop):=sint(xloop)-1 \pint(xloop):=pint(xloop)+1
+         ENDIF 
+       NEXT xloop
+     NEXT mloop
+     FOR mloop=1 TO 3 \tint(mloop):=sint(mloop) \NEXT mloop
+     testx:=playX(me) \testy:=playY(me) \ GOSUB 9008 \(* raw mtl to hold
+     RETURN 
+2310 tmp0:=0 \tmp1:=0
+     FOR yloop=1 TO 3
+       tmp0:=tmp0+tint(yloop)
+       tmp1:=tmp1+rint(yloop)
+       IF tmp0>100 OR tmp1>100 THEN  \flags(5):=TRUE \ ENDIF 
+     NEXT yloop
+     RETURN 
+     
+2400 PRINT " Debug Page:"
+     teststr:="on " \ IF flags(2)=TRUE THEN  \teststr:="off" \ ENDIF            
+     teststr2:="More" \ IF flags(3)=TRUE THEN  \teststr2:="Less"\ ENDIF 
+     flags(4):=FALSE
+     PRINT " 1) "; teststr2; " info  2) Jump X,Y   3) Dump Galaxy   4) Dump Players  "
+     PRINT " 5) Spy "; teststr; "   6) Skip turn    "; 
+     INPUT cmd
+     cmd:=MOD(cmd,7)+50
+     IF cmd=50 THEN  \ RETURN  \ ENDIF 
+     ON cmd-50 GOSUB 2410,2420,2430,2440,2450,2460
+     RETURN 
+2410 (* info flag
+     IF flags(3)=TRUE THEN 
+       flags(3):=FALSE
+     ELSE 
+       flags(3):=TRUE
+     ENDIF 
+     flags(4):=FALSE
+     RETURN 
+2420 (* jump to x,y
+     FOR lloop:=0 TO 4 STEP 4
+       FOR xloop=1 TO 4
+         PRINT "    "; lloop+xloop; " "; playN(lloop+xloop); 
+       NEXT xloop
+       PRINT 
+     NEXT lloop
+     INPUT " Player number? ",tmp1
+     testx:=playX(tmp1) \testy:=playY(tmp1)
+     char:=" " \glvl:=1 \ GOSUB 9000
+     (* INPUT "Quadrant X: ",tmp \glxX:=tmp*8-4
+     (* INPUT "Quadrant Y: ",tmp \glxY:=tmp*8-4
+     INPUT "Sector X: ",glxX \ INPUT "Sector Y: ",glxY
+     GOSUB 9001
+     playX(tmp1):=glxX \playY(tmp1):=glxY
+     testx:=playX(tmp1) \testy:=playY(tmp1)
+     char:=LEFT$(playN(tmp1),1) \ GOSUB 9001
+     GOSUB 9007
+     RETURN 
+     
+2430 PRINT "Dump galaxy:"
+     FOR yloop=1 TO 64
+       IF yloop<10 THEN  \ PRINT " ";  \ ENDIF 
+       PRINT yloop; " "; 
+       FOR xloop=1 TO 57 STEP 8
+         PRINT MID$(gscan(1,yloop),xloop,8); "|"; 
+       NEXT xloop
+       PRINT 
+       IF flags(3)=TRUE THEN 
+         PRINT "   "; 
+         FOR xloop=1 TO 57 STEP 8
+           FOR lloop=0 TO 7
+             testx:=lloop+xloop \testy:=yloop \ GOSUB 9008
+             IF tint(1)>0 THEN 
+               tmp:=4
+               IF tint(2)>0 THEN 
+                 tmp:=6
+               ELSE 
+                 IF tint(3)>0 THEN  \tmp:=5 \ ENDIF 
+               ENDIF 
+               IF tint(2)>0 AND tint(3)>0 THEN  \tmp:=7 \ ENDIF 
+             ELSE 
+               IF tint(2)>0 THEN 
+                 tmp:=2
+                 IF tint(3)>0 THEN  \tmp:=3 \ ENDIF 
+               ELSE 
+                 IF tint(3)>0 THEN  \tmp:=1 \ ENDIF 
+               ENDIF 
+             ENDIF 
+             IF tmp>0 THEN 
+               char:=STR$(tmp)
+             ELSE 
+               char:=" "
+             ENDIF 
+             PRINT char; 
+           NEXT lloop
+           PRINT ":"; 
+         NEXT xloop
+       ENDIF 
+       PRINT 
+       IF MOD(yloop,8)=0 THEN 
+         IF MOD(yloop,16)=0 THEN 
+           PRINT sysname
+         ELSE 
+           PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN(4),playN(5),playN(6),playN(7),playN(8)
+           IF flags(3)=TRUE THEN 
+             PRINT "M/am - Atomic - Chemical  1) C  2) A  3) A+C  4) M  5) M+C  6) A+M  7) all"
+           ENDIF 
+         ENDIF 
+         INPUT "q=quit ",a$
+         IF a$="q" THEN  \ RETURN  \ ENDIF 
+       ENDIF 
+     NEXT yloop
+     RETURN 
+2440 (* dump player status
+     FOR lloop:=1 TO 8
+       PRINT "----- "; playN(lloop); " at "; playX(lloop); ","; playY(lloop); "  Tribe: "; tribeN(ABS(playI(lloop))); 
+       testx:=playX(lloop) \testy:=playY(lloop) \ GOSUB 9008
+       PRINT "  Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3)
+       PRINT spaces; spaces; " MAM:"; playM(lloop,1); " Atm:"; playM(lloop,2); " Chm:"; playM(lloop,3)
+       PRINT spaces; 
+       PRINT USING "3(s8<,i4>),s1>",playR(1),playS(me,1),playR(2),playS(me,2),playR(3),playS(me,3),"%"
+       PRINT spaces; 
+       PRINT USING "3(s8<,i4>),s1>",playR(4),playS(me,4),playR(5),playS(me,5),playR(6),playS(me,6),"%"
+       PRINT spaces; 
+       PRINT USING "3(s8<,i4>),s1>",playR(7),playS(me,7),playR(8),playS(me,8),playR(9),playS(me,9),"%"
+       PRINT spaces; 
+       PRINT USING "3(s8<,i4>),s1>",playR(10),playS(me,10),playR(11),playS(me,11),playR(12),playS(me,12),"%"
+       IF lloop=4 OR lloop=8 THEN  \ INPUT "next ?",a$ \ ENDIF 
+     NEXT lloop
+     RETURN 
+2450 (* track all players flag
+     IF flags(2)=TRUE THEN 
+       flags(2):=FALSE
+     ELSE 
+       flags(2):=TRUE
+     ENDIF 
+     flags(4):=FALSE
+     RETURN 
+2460 RETURN 
+2500 (* systems damage/wear  in: play, cmd0, targ0, dist0
+     dist0:=INT(64-dist) \(* invert
+     cmd0:=MOD(cmd0,4)+60
+     IF cmd0=60 THEN  \ RETURN  \ ENDIF 
+     ON cmd0-60 GOSUB 2510,2520,2530
+     RETURN 
+2510 (* turn: recharge or drain storage
+     FOR xloop:=1 TO 3
+       IF playS(play,xloop)>0 THEN 
+         playS(play,xloop+3):=playS(play,xloop+3)+playS(play,xloop)/20 \(* charge
+       ELSE 
+         playS(play,xloop+3):=playS(play,xloop+3)-playS(play,xloop+3)/20
+       ENDIF 
+     NEXT xloop
+     RETURN 
+2520 (* use: one device, \(* plus a turn also passes
+     IF targ0>6 THEN 
+       tmp:=3
+       IF targ0>9 THEN  \tmp:=6 \ ENDIF 
+       playS(play,targ0-tmp):=playS(play,targ0-tmp)-dist0/20 \(* drain power store
+     ENDIF 
+     playS(play,targ0):=playS(play,targ0)-dist0/20 \(* wear on specific device
+     (* GOSUB 2510
+     RETURN 
+2530 (* damage: repeat as needed, then call turn separately
+     IF playS(play,10)>10 THEN 
+       playS(play,10):=playS(play,10)-dist0 \(* ding shields
+       dist0:=dist0-playS(play,10)/20 \(* ** reduce damage by shield % BALANCE ME ***
+     ENDIF 
+     playS(play,targ0):=playS(play,targ0)-dist0
+     RETURN 
+     
+3000 (* simple AI find closest
+     prnstr:=" "
+     
+     tmp:=0
+     IF playI(token)<0 THEN  \(* rep<0 means AI
+       FOR xloop=1 TO 8 \(* each pot. opponent
+         IF token=xloop THEN 
+           range(xloop):=999
+         ELSE 
+           range(xloop):=0
+           tmp:=ABS(playX(xloop)-playX(token))
+           tmp0:=ABS(playY(xloop)-playY(token))
+           range(xloop):=tmp+tmp0
+         ENDIF 
+       NEXT xloop
+       FOR xloop=1 TO 8 \(* find closer enemy
+         IF range(xloop)<range(token) THEN 
+           target(token):=xloop
+           range(token):=range(lloop)
+           (* PRINT " new:"; target(token)
+         ENDIF 
+         (* PRINT "target="; target(token); " "; range(token)
+       NEXT xloop
+       prnstr=playN(token)+": "+STR$(range(token))+" to "
+       prnstr:=prnstr+playN(target(token))+" "
+       IF range(token)<40 AND range(token)<>0 THEN 
+         tmp:=range(target(token))
+         IF range(token)<16 THEN 
+           prnstr:=prnstr+"attacking."
+           tmp0:=target(token) \tmp:=16-range(target(token))
+           tmp1:=1 \tmp2:=12 \ GOSUB 9005
+           tmp:=INT(tmp/3) \(* and weak chase
+         ENDIF 
+         IF RIGHT$(prnstr,4)<>"ing." THEN 
+           prnstr:=prnstr+"giving chase."
+         ENDIF 
+         testx:=playX(token) \testy:=playY(token)
+         char:=" " \glvl:=1 \ GOSUB 9000
+         tmp:=playX(token) \tmp1:=playX(target(token))
+         GOSUB 9003 \playX(token):=tmp
+         tmp:=playY(token) \tmp1:=playY(target(token))
+         GOSUB 9003 \playY(token):=tmp
+         glxX:=playX(token) \glxY:=playY(token)
+         IF MID$(gscan(1,glxY),glxX,1)<>" " THEN 
+           GOSUB 9001
+           playX(token):=glxX \playY(token):=glxY
+         ENDIF 
+         testx:=playX(token) \testy:=playY(token)
+         char:=LEFT$(playN(token),1) \ GOSUB 9000
+       ENDIF 
+     ENDIF 
+     IF flags(2)=TRUE THEN  \ PRINT prnstr \ ENDIF 
+     tmp:=0
+     RETURN 
+     (* Utility Stuffs -----------------------------------------------------
+     
+9000 (* string concat
+     gscan(glvl,testy):=LEFT$(gscan(glvl,testy),testx-1)+char+MID$(gscan(glvl,testy),testx+1,64)
+     RETURN 
+     
+9001 (* step right until clear
+     LOOP 
+       glxX:=glxX+1
+       IF glxX>64 THEN  \glxX:=1 \glxY:=glxY+1 \ ENDIF 
+       IF glxY>64 THEN  \glxY:=1 \ ENDIF 
+     EXITIF MID$(gscan(1,glxY),glxX,1)=" " THEN 
+     ENDEXIT 
+     ENDLOOP 
+     RETURN 
+     
+9002 (* phazer, torpedo damage to other players.  dist=distance commanded 1-64 /(*** VERIFY ME ***
+     char:=MID$(gscan(1,glxY),glxX-1,3)
+     IF char<>LEFT$(playN(me),1) THEN 
+       IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
+         FOR play=1 TO 8
+           IF LEFT$(playN(play),1)=char THEN 
+             IF cmd=21 THEN (* phaser damage all warp powered systems
+               rlmt:=dist \randl:=-1 \ GOSUB 9010
+               dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(* shield & warp
+               PRINT " Phaser result: "; randl; "% M/AM damage to "; playN(play); "."
+               rlmt:=pin \randl:=0 \ GOSUB 9010
+               dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(* shield & main
+             ENDIF 
+             IF cmd=22 THEN  \(* torpedo damage one random system
+               rlmt=12 \randl:=-1 \ GOSUB 9010
+               targ0:=randl \rlmt:=dist0 \randl:=0 \ GOSUB 9010
+               cmd0:=63 \targ:=randl \ GOSUB 2500 \(* shield & random system 1-12
+               PRINT " Torpedo result: "; randl; "% "; playR(targ); " damage to "; playN(play); "."
+             ENDIF 
+           ENDIF 
+         NEXT play
+       ENDIF 
+     ELSE 
+       IF SUBSTR(char,"*o@OQ")>0 THEN 
+         rlmt:=10 \ GOSUB 9010
+         IF randl<3 THEN 
+           GOTO 9900 \(* player hits  something ***FIXME***
+         ELSE 
+           GOSUB 9001
+         ENDIF 
+       ENDIF 
+     ENDIF 
+     RETURN 
+     
+9003 (* AI limits
+     IF tmp<tmp1 THEN  \tmp:=tmp-2
+     ELSE  \tmp:=tmp+1
+     ENDIF 
+     IF tmp<1 THEN  \tmp:=1 \ ENDIF 
+     IF tmp>64 THEN tmp:=64 \ ENDIF 
+     RETURN 
+     
+9004 (* return empty testx,testy
+     testx:=RND(63)+1 \testy:=RND(63)+1
+     LOOP 
+     EXITIF MID$(gscan(1,testy),testx,1)=" " THEN 
+     ENDEXIT 
+       testx:=testx+1
+       IF testx>64 THEN 
+         testx:=1 \testy:=testy+1
+       ENDIF 
+       IF testy>64 THEN 
+         testy:=1 \testx:=testx+1
+       ENDIF 
+     ENDLOOP 
+     RETURN 
+     
+9005 (* damage to all ****FIXME***
+     RETURN 
+     PAUSE 
+     FOR mloop=tmp1 TO tmp2
+       rlmt:=tmp
+       GOSUB 9010
+       playS(tmp0,mloop):=playS(tmp0,mloop)-randl
+     NEXT mloop
+     RETURN 
+     
+9006 (* player scores
+     FOR lloop=1 TO 8
+       FOR xloop:=1 TO 3
+         tint(xloop):=0
+         FOR yloop=0 TO 10 STEP 3
+           IF playS(lloop,xloop+yloop)<0 THEN 
+             playS(lloop,xloop):=playS(lloop,xloop)-playS(lloop,xloop+yloop) \(* damage flows up
+             playS(lloop,xloop+lloop):=0
+           ENDIF 
+           tint(xloop):=tint(xloop)+playS(lloop,xloop+yloop)
+         NEXT yloop
+       NEXT xloop
+       IF cmd=32 THEN 
+         PRINT 
+         PRINT LEFT$(spaces,8-LEN(playN(yloop))); 
+         PRINT playN(lloop); "   Reputatiom: "; ABS(playI(lloop)); 
+         PRINT USING "3(s8>,i4<)","  M/AM: ",tint(1),"  Nuke: ",tint(2),"  Chem: ",tint(3)
+       ENDIF 
+       IF tint(3)<1 THEN  \(* player is dead
+       ENDIF 
+     NEXT lloop
+     RETURN 
+     
+9007 quadX:=INT((testx-1)/8+1) \quadY:=INT((testy-1)/8+1)
+     RETURN 
+     
+9008 (* read resouce layer
+     tmp:=ASC(MID$(gscan(2,testy),testx,1)) \tint(1):=INT(tmp/100)
+     tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint(2)*10
+     RETURN 
+     
+9009 (* write resource layer
+     char:=CHR$(tint(1)*100+tint(2)*10+tint(3))
+     (* IF char="0" THEN  \char:=" " \ ENDIF 
+     glvl:=2 \ GOSUB 9000 \glvl:=1
+     RETURN 
+     
+9010 (* convert random to randl with rlmt=limit 
+     randl:=randl-1
+     IF randl<0 THEN 
+       randl:=INT(MOD(random(3),rlmt))
+     ENDIF 
+     IF randl>0 THEN 
+       randl:=INT(MOD(random(2),rlmt))
+     ELSE 
+       randl:=INT(MOD(random(1),rlmt))
+     ENDIF 
+     RETURN 
+     
+9011 IF flags(1)=TRUE THEN 
+       PRINT  \ PRINT 
+       PRINT USING "4(s9>,i7<)",playN(1),playC(1),playN(2),playC(2),playN(3),playC(3),playN(4),playC(4)
+       PRINT USING "4(s9>,i7<)",playN(5),playC(5),playN(6),playC(6),playN(7),playC(7),playN(8),playC(8)
+       PRINT spaces; trbname
+       PRINT  \ PRINT sysname
+     ENDIF 
+     RETURN 
+     
+9012 (* collision damage
+     randl:=1 \rlmt:=12 \ GOSUB 9010 \targ0:=randl
+     IF targ0>0 THEN 
+       PRINT " Collision damage "; dist0; "% to "; MID$(playR(targ0),2,5)
+       randl:=-1 \rlmt:=20 \ GOSUB 9010 \dist0:=randl
+       cmd0:=63 \play:=token \ GOSUB 2500
+     ENDIF 
+     RETURN 
+     
+9013 (* remove player
+     testx:=playX(token) \testy:=playY(token)
+     char:=" " \glvl:=1 \ GOSUB 9000
+     GOSUB 9008
+     FOR mloop=1 TO 3
+       rint(mloop):=tint(mloop) \tint(mloop):=0
+     NEXT mloop
+     GOSUB 9009
+     RETURN 
+     
+9014 (* deposit player
+     testx:=glxX \testy:=glxY \ GOSUB 9007
+     playX(token):=glxX \playY(token):=glxY
+     char:=LEFT$(playN(token),1) \ GOSUB 9000
+     FOR mloop:=1 TO 3 \tint(mloop):=rint(mloop) \NEXT mloop
+     GOSUB 9009
+     RETURN 
+     
+     
+9100 (* navigation
+     PRINT spaces; "   8  1  2  "
+     PRINT spaces; "    \ | /   "
+     PRINT spaces; "  7 --+-- 3 "
+     PRINT spaces; "    / | \   "
+     PRINT spaces; "   6  5  4  "
+     INPUT " Select course:",targ
+     pin:=1 \ IF cmd<>23 THEN 
+       INPUT " Distance(1-8): ",pin
+     ENDIF 
+     targ:=MOD(targ,9)
+     pin:=MOD(pin,10)
+     IF targ*pin=0 THEN  \ GOTO 9105 \ ENDIF 
+     testx:=playX(me) \testy:=playY(me) \ GOSUB 9007
+     tmpX:=quadX \tmpY:=quadY
+     dist:=pin \(* tmp0=pri.system, tmp1=sec.system
+     IF cmd=11 THEN 
+       dist:=pin*5 \dmax:=64 \tmp0:=1 \tmp1:=4
+     ENDIF 
+     IF cmd=12 THEN 
+       dist:=pin*3 \dmax:=9 \tmp0:=2 \tmp1:=5
+     ENDIF 
+     IF cmd=21 THEN 
+       dist:=pin*2 \dmax:=27 \tmp0:=5 \tmp1:=8
+     ENDIF 
+     IF cmd=22 THEN 
+       dist:=pin*5 \dmax:=32 \tmp0:=5 \tmp1:=8
+     ENDIF 
+     IF cmd=23 THEN 
+       dist:=2 \dmax:=2 \tmp0:=6 \tmp1:=9
+     ENDIF 
+     IF cmd=31 THEN 
+       dist:=pin*5 \dmax:=64 \tmp0:=2 \tmp1:=8
+     ENDIF 
+     IF cmd=32 THEN 
+       dist:=pin*5 \dmax:=64 \tmp0:=1 \tmp1:=10
+     ENDIF 
+     cmd0:=62 \play:=me \targ0:=tmp0 \ GOSUB 2500 \(* wear on pri.system
+     cmd0:=62 \play:=me \targ0:=tmp1 \ GOSUB 2500 \(* wear on sec.system
+     dtmp0:=playS(me,tmp0) \dtmp1:=playS(me,tmp1) \(* dtmp value those 2 systems
+     dist:=dist*(dtmp0/100)*(dtmp1/100) \(* distance reduced by both systems
+     IF dist>dmax THEN  \dist:=dmax \ ENDIF 
+     ON targ GOSUB 9120,9121,9122,9123,9124,9125,9126,9127
+     
+     FOR track=1 TO dist
+       tmp0:=0 \glxX:=glxX+xstep \glxY:=glxY+ystep
+       IF glxX<1 THEN  \glxX:=64 \tmp0:=1 \ ENDIF 
+       IF glxX>64 THEN  \glxX:=1 \tmp0:=1 \ ENDIF 
+       IF glxY<1 THEN  \glxY:=64 \tmp0:=1 \ ENDIF 
+       IF glxY>64 THEN  \glxY:=1 \tmp0:=1 \ ENDIF 
+       testx:=glxX \testy:=glxY \ GOSUB 9007
+       IF cmd=12 OR cmd=22 THEN 
+         IF tmpX<>quadX THEN  \glxX:=glxX-xstep \ GOTO 9105 \ ENDIF                
+         IF tmpY<>quadY THEN  \glxY:=glxY-ystep \ GOTO 9105 \ ENDIF
+         IF MID$(gscan(1,glxY),glxX,1)<>" " THEN  \(* subwarp collision
+           IF cmd=22 THEN  \ PRINT "Torpedo destroyed" \ GOTO 9105 \ ENDIF 
+           IF cmd=12 THEN  \ GOSUB 9012 \ GOTO 9105 \ ENDIF 
+         ENDIF 
+       ENDIF 
+     NEXT track
+     IF cmd=11 THEN 
+       IF scanx<>quadX OR scany<>quadY THEN  \(* might crash
+         randl:=1 \rlmt:=10 \ GOSUB 9010
+         IF randl<5 THEN 
+           GOSUB 9012 \ GOTO 9105 \(* did crash
+         ENDIF 
+       ENDIF 
+       scanx:=0 \scany:=0
+     ENDIF 
+9105 IF tmpY<>quadY THEN  \glxY:=glxY-ystep \ ENDIF 
+     GOSUB 2510
+     RETURN 
+     
+9120 xstep:=0 \ystep:=-1 \ RETURN 
+9121 xstep:=1 \ystep:=-1 \ RETURN 
+9122 xstep:=1 \ystep:=0 \ RETURN 
+9123 xstep:=1 \ystep:=1 \ RETURN 
+9124 xstep:=0 \ystep:=1 \ RETURN 
+9125 xstep:=-1 \ystep:=1 \ RETURN 
+9126 xstep:=-1 \ystep:=0 \ RETURN 
+9127 xstep:=-1 \ystep:=-1 \ RETURN 
+     
+9900 (* death screen
+     PRINT "You died!"
+     END 
+     
+9990 DATA "pexpress",2,"entrprze",3,"hrtgold",1,"axiom",2,"nebanzzr",3,"mfalcon",3,"tardis7",3
+9991 DATA "  Warp: ","% Impls:","%   RCS:","  Main: ","%   APU: ","%  Batt:"," Phasr:","%  Torp:","% Mines:","  Shld: ","%  Envr:","% Consu:"
+9992 DATA "Antimatter (Warp, Main Pwr, Phaser, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
+     DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
+9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital",8,"Q:galactic",4,"#:bases",4
+9994 DATA "Books","Toons","Film","Human"
