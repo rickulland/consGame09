@@ -33,93 +33,92 @@ You will also see a lot of the Targeting Screen. Most commands are based on the 
 ## Commands ##
 
 ### Engine:Warp ###
-	Under good repair, warp 8 will move about 4 quadrants per turn. Chance of substantial collision damage when jumping blind. Allow the nav computer to find an empty spot to 'land' in by sending a (warp powered) probe or scan out the proposed course and distance first.
+Under good repair, warp 8 will move about 4 quadrants per turn. Chance of substantial collision damage when jumping blind. Allow the nav computer to find an empty spot to 'land' in by sending a (warp powered) probe or scan out the proposed course and distance first.
 
 ### Engine:Impulse ###
-	Sublight speed devices (impluse,probe,torpedo) requires a clear path to target. Looses 'punch' towards the edges of each quadrant, and usually can't reach the next one.
+Sublight speed devices (impluse,probe,torpedo) requires a clear path to target. Looses 'punch' towards the edges of each quadrant, and usually can't reach the next one.
 
 ### Engine:RCS ###
-	The reaction control system keeps the ship oriented and navigable. Accepts no inputs, just keep the maintenance up.  
+The reaction control system keeps the ship oriented and navigable. Accepts no inputs, just keep the maintenance up.  
 
 ### Effector:Phaser ###
-	Aim for the 'ground zero' of a M/AM event. Under damage conditions, transport degrades about the same as warp and Qprobe. Mainly effective against other M/AM systems, some damage to Atomic. Do not phase your own quadrant!
+Aim for the 'ground zero' of a M/AM event. Under damage conditions, transport degrades about the same as warp and Qprobe. Mainly effective against other M/AM systems, some damage to Atomic. Do not phase your own quadrant!
 	
 ### Effector:Torpedo ###
-	A torpedo is simply a probe with a fission warhead. It will detonate on impact or at a defined distance. Within a quadrant, torpedos are a most effective weapon, as they can bypass shields to physically damage any system. 
+A torpedo is simply a probe with a fission warhead. It will detonate on impact or at a defined distance. Within a quadrant, torpedos are a most effective weapon, as they can bypass shields to physically damage any system. 
 	
 ### Effector:Miner ###
-	While parked next to any other system or ship, you can try to extract raw materials. These can be traded, or refined into repair material. See: Damage Control 
+While parked next to any other system or ship, you can try to extract raw materials. These can be traded, or refined into repair material. See: Damage Control 
 	Mining may require a trade agreement See: Notable objects
 	
 ### Intel:Qprobe ###
-	A Qprobe is warped into some nearby Quadrant and returns a standard targeting scan of that quadrant. It can't be tracked back to you. Use qprobes to verify how well warp will work and let the nav computer pick an empty spot to 'land' in.
+A Qprobe is warped into some nearby Quadrant and returns a standard targeting scan of that quadrant. It can't be tracked back to you. Use qprobes to verify how well warp will work and let the nav computer pick an empty spot to 'land' in.
 
 ### Intel:Qscan ###
-	A Qscan is similar to a probe, but more invasive. What you gain is insight into recoverable material in or near each object - a 3 digit number estimating antimatter, atomic, and chemical stock in a range of 0-5.
-	To scan the current quadrant, aim back across the center of it with distance 1. Players nearby may consider this a hostile act, be discreet and do your scans before 'popping in.'  
+A Qscan is similar to a probe, but more invasive. What you gain is insight into recoverable material in or near each object - a 3 digit number estimating antimatter, atomic, and chemical stock in a range of 0-5.
+To scan the current quadrant, aim back across the center of it with distance 1. Players nearby may consider this a hostile act, be discreet and do your scans before 'popping in.'  
 
 ### Intel:Scores ###
-	Not really defined yet. A ccumulated health and possesions? Not a turn.
+Not really defined yet. A ccumulated health and possesions? Not a turn.
 
 ### Intel:Legend (on/off) ###
-	The player/tribe/object legend start of each turn. Not a turn.
+The player/tribe/object legend start of each turn. Not a turn.
 	
 ### Damage:Damage Control ###
-	Fixing things takes stuff. Our3 major systems require three types of repair material. Engineering stores some ready to use, and refined products can be obtained from a friendly base or fellow tribesman. You ship's hold may include raw materials for trade. These can be refined 'in house' if needed.  
-	Along with some quantity of repair materials in stock, you have 100 units of time. Split those 100 repair hours into repairing or refining in six easy steps. Requests are trimmed to match available material, and once the 100 hours are gone the computer stops asking.
+Fixing things takes stuff. Our3 major systems require three types of repair material. Engineering stores some ready to use, and refined products can be obtained from a friendly base or fellow tribesman. You ship's hold may include raw materials for trade. These can be refined 'in house' if needed.  
+Along with some quantity of repair materials in stock, you have 100 units of time. Split those 100 repair hours into repairing or refining in six easy steps. Requests are trimmed to match available material, and once the 100 hours are gone the computer stops asking.
 
 
 ## Supplies and services ##
 
 ### Engine:Warp   Storage:Main ###
-   FTL transport and large power draw devices. Extended high factor use will reduce power available for these systems:
+FTL transport and large power draw devices. Extended high factor use will reduce power available for these systems:
 
 ### Effector: Phaser ###
-   This energy weapon will focus to a desired source and range, then EMF bomb everything nearby. Make sure you are not nearby.
+This energy weapon will focus to a desired source and range, then EMF bomb everything nearby. Make sure you are not nearby.
 
 ### Service: Shields ###
-   Protect every other system from some amount of combat or collision damage. 
+Protect every other system from some amount of combat or collision damage. 
 
 ### Engine:Impulse   Storage:APU ###
-   The fusion reactors provide sublight transport inside the targeting quadrant. In other words, running into things will cause damage. Aim for the space in space.  Impulse engines also power medium draw systems. 
+The fusion reactors provide sublight transport inside the targeting quadrant. In other words, running into things will cause damage. Aim for the space in space.  Impulse engines also power medium draw systems. 
 
 ### Effector: Torpedo ###
-   Atomic weapon with subspace transport. Easily pierces force shields. Good stealth weapon, except for a penchant to crash into things.
+Atomic weapon with subspace transport. Easily pierces force shields. Good stealth weapon, except for a penchant to crash into things.
 
 ### Service: Biological ###
-   You know- air, heat, and stuff. This dies, you die, everybody dies.
+You know- air, heat, and stuff. This dies, you die, everybody dies.
 
 ### Engine:RCS   Storage:Batt ###
-   The reaction control system draws from all other power supplies. It is not only inertial stability but the power source of last resort. Your ship and crew will live as long as this system does.
+The reaction control system draws from all other power supplies. It is not only inertial stability but the power source of last resort. Your ship and crew will live as long as this system does.
 
 ### Effector: Miner ###
-   Miner will try to extact raw material from any adjacent object. Initially to repair supplies, then as saleable cargo in the hold. 
+Miner will try to extact raw material from any adjacent object. Initially to repair supplies, then as saleable cargo in the hold. 
 
 ### Service: Consumables ###
-   Replicators are sexy, but expensive and high maintenance. Sublight transport kepts the galley cookin. These operations are bundled under 'consumables'.
+Replicators are sexy, but expensive and high maintenance. Sublight transport kepts the galley cookin. These operations are bundled under 'consumables'.
 
 
 ## Debug menu ## 
-
- wont be part of the final game, provided for debuggings and balancing
+wont be part of the final game, provided for debuggings and balancing
 
 ### Debug:More/less info ###
-	inside the debug menu
+inside the debug menu
 
 ### Debug:Jump X,Y ###
-	Put any player at any glxX/glxY with obsticle avoidance
+Put any player at any glxX/glxY with obsticle avoidance
 
 ### Debug: Dump Galaxy ###
-	A chart of the physical galaxy, 'more' includes a summary of contents
+A chart of the physical galaxy, 'more' includes a summary of contents
 
 ### Debug: Dump Players ###
-	Many stats for each player. These should remain aligned in multiplayer games 
+Many stats for each player. These should remain aligned in multiplayer games 
 
 ### Debug: Spy On ###
-	inline status updates for each player. Shows order and end of round. 
+inline status updates for each player. Shows order and end of round. 
 
 ### Debug: Skip Turn ###
-	Just that - let everyone else go ahead. 
+Just that - let everyone else go ahead. 
 
 
 
