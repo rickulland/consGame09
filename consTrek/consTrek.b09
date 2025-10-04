@@ -1,6 +1,6 @@
 PROCEDURE consGame
-     (* consTrek 19 - serial terminal game for 6x09
-     (* Trek skin -  @ ai fixes
+     (* consGame 04 - serial terminal game for TFR/905h
+     (* Trek skin -  ai fixes
      DIM gscan(2,64):STRING[64]
      DIM fscan(3):STRING[32]
      DIM tscan(2,8):STRING[8]
@@ -21,7 +21,7 @@ PROCEDURE consGame
      DIM me,play,dmax,glvl,targ,targ0,token,xstep,ystep:INTEGER
      DIM flags(6),played(8),hosted(8):BOOLEAN
      PRINT "Creating Galaxy. please wait..."
-     flags(1):=FALSE \flags(2):=FALSE \flags(3):=FALSE
+     flags(1):=FALSE \flags(2):=TRUE \flags(3):=FALSE
      flags(4):=TRUE \flags(5):=FALSE \flags(6):=FALSE
      FOR lloop=1 TO 8
        played(lloop):=FALSE \hosted(lloop):=TRUE
@@ -37,6 +37,7 @@ PROCEDURE consGame
      NEXT lloop
      me:=1
      playN(1):="rick" \(* INPUT "What is your name (8 CHAR)";playN(1)
+     playI(1):=4 \(* INPUT "and tribe? (8 CHAR)";playI(1)
      RESTORE 9990 \ FOR lloop=2 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
      RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
      FOR yloop:=1 TO 8
@@ -46,7 +47,6 @@ PROCEDURE consGame
        FOR xloop=1 TO 3
          playM(yloop,xloop):=100
        NEXT xloop
-       playI(yloop):=(RND(3)+1)*-1
      NEXT yloop
      playI(1):=4
      dashes:="--------------" \spaces:="        "
@@ -89,7 +89,7 @@ PROCEDURE consGame
                char:="O" \syst(4):=syst(4)-1 \tmp1:=4 \tmp2:=5
              ELSE 
                IF syst(5)>0 THEN 
-                 char:="Q" \syst(5):=syst(5)-1 \tmp0:=2 \tmp1:=5\tmp2:=4
+                 char:="Q" \syst(5):=syst(5)-1 \tmp0:=2 \tmp1:=5 \tmp2:=4
                ELSE 
                  char:="*" \tmp0:=1 \tmp1:=0 \tmp2:=0
                ENDIF 
@@ -117,7 +117,12 @@ PROCEDURE consGame
 500  (* AI or network player add
      (* random gen AI players
      FOR lloop=2 TO 8
+       testx:=INT(RND(32)+1) \testy:=INT(RND(32)+1)
+       IF testx>20 THEN  \testx:=testx+44 \ ENDIF 
+       IF testy>20 THEN  \testy:=testy+44 \ ENDIF 
        GOSUB 9004
+       PRINT testx,testy
+       INPUT a$
        char:=LEFT$(playN(lloop),1)
        playX(lloop):=testx \playY(lloop):=testy
        glvl:=1 \ GOSUB 9000
@@ -149,108 +154,109 @@ PROCEDURE consGame
        ENDLOOP 
 1020   IF playI(token)<0 THEN 
          GOSUB 3000 \(* AI picks enemies
+         GOTO 1070
        ELSE 
          IF token<>me THEN 
-           (* other players
+           (* receive other player
+           PRINT "MP RSN" \ PAUSE 
+           GOTO 1070
          ENDIF 
-         (* start term display
-         FOR lloop=1 TO 3
-           fscan(lloop):=" "
-         NEXT lloop
-         tcnt:=1
-         FOR yloop=1 TO 8
-           playC(yloop):=0
-           FOR lloop=1 TO 12
-             IF playS(yloop,lloop)<0 THEN  \playS(yloop,lloop):=0\ ENDIF 
-             IF playS(yloop,lloop)>100 THEN  \playS(yloop,lloop):=100 \ ENDIF 
-             playC(yloop):=playC(yloop)+playS(yloop,lloop)
-           NEXT lloop
-         NEXT yloop
-         GOSUB 9011
-1030     (* long scan
-         FOR tmpY=quadY-1 TO quadY+1
-           FOR tmpX=quadX-1 TO quadX+1
-             IF tmpX<1 OR tmpX>8 OR tmpY<1 OR tmpY>8 THEN 
-               fscan(tcnt):=fscan(tcnt)+"****** "
-             ELSE 
-               tmp1:=0 \tmp2:=0 \tmp3:=0
-               glxX:=tmpX*8-7 \glxY:=tmpY*8-7
-               FOR lloop=1 TO 8
-                 tscan(1,lloop):=MID$(gscan(1,glxY),glxX,8)
-                 glxY:=glxY+1
-               NEXT lloop
-               FOR yloop=1 TO 8
-                 FOR xloop=1 TO 8
-                   char:=MID$(tscan(1,yloop),xloop,1)
-                   IF SUBSTR(char,"*o@")>0 THEN  \tmp1:=tmp1+1 \ ENDIF 
-                   IF SUBSTR(char,"#OQ")>0 THEN  \tmp2:=tmp2+1 \ ENDIF 
-                   IF ASC(char)>96 AND ASC(char)<122 THEN 
-                     (* IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
-                     tmp3:=tmp3+1
-                   ENDIF 
-                 NEXT xloop
-               NEXT yloop
-               IF tmp1<10 THEN 
-                 fscan(tcnt):=fscan(tcnt)+" "
-               ENDIF 
-               fscan(tcnt):=fscan(tcnt)+STR$(tmp1)+"."+STR$(tmp2)
-               fscan(tcnt):=fscan(tcnt)+"."+STR$(tmp3)+" "
-             ENDIF 
-           NEXT tmpX
-           tcnt:=tcnt+1
-         NEXT tmpY
-1050     PRINT  \ PRINT spaces; "Quad: "; quadX; ","; quadY; 
-         PRINT spaces; spaces; "Nearby Quads: *o@.#OQ.other"
-         (* short scan ___________________________________
-         glvl:=1
-         FOR lloop=1 TO 8
-           testx:=playX(lloop) \testy:=playY(lloop)
-           char:=LEFT$(playN(lloop),1) \ GOSUB 9000
-         NEXT lloop
-         tcnt:=1 \glxX:=quadX*8-7 \glxY:=quadY*8-7 \(* top left
-         FOR yloop=glxY TO glxY+7
-           tscan(1,tcnt):=MID$(gscan(1,yloop),glxX,8) \tcnt:=tcnt+1
-         NEXT yloop
-         PRINT dashes
-         FOR yloop=1 TO 8
-           PRINT "|  "; 
-           FOR xloop=1 TO 8
-             PRINT MID$(tscan(1,yloop),xloop,1); "  "; 
-           NEXT xloop
-           PRINT "|"; 
-           IF yloop=1 THEN  \ PRINT spaces; fscan(1) \ ENDIF 
-           IF yloop=2 THEN  \ PRINT spaces; fscan(2) \ ENDIF 
-           IF yloop=3 THEN  \ PRINT spaces; fscan(3) \ ENDIF 
-           IF yloop=4 THEN  \ PRINT  \ ENDIF 
-           IF yloop=5 THEN 
-             PRINT USING "3(s8<,i4>),s1>",playR(1),playS(me,1),playR(2),playS(me,2),playR(3),playS(me,3),"%"
-           ENDIF 
-           IF yloop=6 THEN 
-             PRINT USING "3(s8<,i4>),s1>",playR(4),playS(me,4),playR(5),playS(me,5),playR(6),playS(me,6),"%"
-           ENDIF 
-           IF yloop=7 THEN 
-             PRINT USING "3(s8<,i4>),s1>",playR(7),playS(me,7),playR(8),playS(me,8),playR(9),playS(me,9),"%"
-           ENDIF 
-           IF yloop=8 THEN 
-             PRINT USING "3(s8<,i4>),s1>",playR(10),playS(me,10),playR(11),playS(me,11),playR(12),playS(me,12),"%"
-           ENDIF 
-         NEXT yloop
-         PRINT dashes
-         glxX:=playX(me) \glxY:=playY(me)
-1060     PRINT  \ PRINT "Next Screen: "; 
-         PRINT " 1)Engine  2)Effector  3)Intel  4)Damage  5)Debug"; 
-         LOOP 
-           INPUT cmd
-           cmd:=MOD(cmd,6)
-         EXITIF cmd>0 THEN 
-         ENDEXIT 
-         ENDLOOP 
-         ON cmd GOSUB 2000,2100,2200,2300,2400
        ENDIF 
+       (* local player display
+       glxX:=playX(me) \glxY:=playY(me)
+       testx:=glxX \testy:=glxY \ GOSUB 9007
+       FOR lloop=1 TO 3
+         fscan(lloop):=" "
+       NEXT lloop
+       tcnt:=1
+       FOR yloop=1 TO 8
+         playC(yloop):=0
+         FOR lloop=1 TO 12
+           IF playS(yloop,lloop)<0 THEN  \playS(yloop,lloop):=0 \ ENDIF 
+           IF playS(yloop,lloop)>100 THEN  \playS(yloop,lloop):=100 \ ENDIF 
+           playC(yloop):=playC(yloop)+playS(yloop,lloop)
+         NEXT lloop
+       NEXT yloop
+       GOSUB 9011
+1030   (* long scan
+       FOR tmpY=quadY-1 TO quadY+1
+         FOR tmpX=quadX-1 TO quadX+1
+           IF tmpX<1 OR tmpX>8 OR tmpY<1 OR tmpY>8 THEN 
+             fscan(tcnt):=fscan(tcnt)+"****** "
+           ELSE 
+             tmp1:=0 \tmp2:=0 \tmp3:=0
+             glxX:=tmpX*8-7 \glxY:=tmpY*8-7
+             FOR lloop=1 TO 8
+               tscan(1,lloop):=MID$(gscan(1,glxY),glxX,8)
+               glxY:=glxY+1
+             NEXT lloop
+             FOR yloop=1 TO 8
+               FOR xloop=1 TO 8
+                 char:=MID$(tscan(1,yloop),xloop,1)
+                 IF SUBSTR(char,"*o@")>0 THEN  \tmp1:=tmp1+1 \ ENDIF
+                 IF SUBSTR(char,"#OQ")>0 THEN  \tmp2:=tmp2+1 \ ENDIF
+                 IF ASC(char)>96 AND ASC(char)<122 THEN 
+                   tmp3:=tmp3+1
+                 ENDIF 
+               NEXT xloop
+             NEXT yloop
+             IF tmp1<10 THEN 
+               fscan(tcnt):=fscan(tcnt)+" "
+             ENDIF 
+             fscan(tcnt):=fscan(tcnt)+STR$(tmp1)+"."+STR$(tmp2)
+             fscan(tcnt):=fscan(tcnt)+"."+STR$(tmp3)+" "
+           ENDIF 
+         NEXT tmpX
+         tcnt:=tcnt+1
+       NEXT tmpY
+       
+1050   PRINT  \ PRINT spaces; "Quad: "; quadX; ","; quadY; 
+       PRINT spaces; spaces; "Nearby Quads: *o@.#OQ.other"
+       (* short scan ___________________________________
+       glvl:=1
+       FOR lloop=1 TO 8
+         testx:=playX(lloop) \testy:=playY(lloop)
+         char:=LEFT$(playN(lloop),1) \ GOSUB 9000
+       NEXT lloop
+       tcnt:=1 \glxX:=quadX*8-7 \glxY:=quadY*8-7 \(* top left
+       FOR yloop=glxY TO glxY+7
+         tscan(1,tcnt):=MID$(gscan(1,yloop),glxX,8) \tcnt:=tcnt+1
+       NEXT yloop
+       PRINT dashes
+       FOR yloop=1 TO 8
+         PRINT "|  "; 
+         FOR xloop=1 TO 8
+           PRINT MID$(tscan(1,yloop),xloop,1); "  "; 
+         NEXT xloop
+         PRINT "|"; 
+         IF yloop=1 THEN  \ PRINT spaces; fscan(1) \ ENDIF 
+         IF yloop=2 THEN  \ PRINT spaces; fscan(2) \ ENDIF 
+         IF yloop=3 THEN  \ PRINT spaces; fscan(3) \ ENDIF 
+         IF yloop=4 THEN  \ PRINT  \ ENDIF 
+         IF yloop=5 THEN 
+           PRINT USING "3(s8<,i4>),s1>",playR(1),playS(me,1),playR(2),playS(me,2),playR(3),playS(me,3),"%"
+         ENDIF 
+         IF yloop=6 THEN 
+           PRINT USING "3(s8<,i4>),s1>",playR(4),playS(me,4),playR(5),playS(me,5),playR(6),playS(me,6),"%"
+         ENDIF 
+         IF yloop=7 THEN 
+           PRINT USING "3(s8<,i4>),s1>",playR(7),playS(me,7),playR(8),playS(me,8),playR(9),playS(me,9),"%"
+         ENDIF 
+         IF yloop=8 THEN 
+           PRINT USING "3(s8<,i4>),s1>",playR(10),playS(me,10),playR(11),playS(me,11),playR(12),playS(me,12),"%"
+         ENDIF 
+       NEXT yloop
+       PRINT dashes
+       glxX:=playX(me) \glxY:=playY(me)
+1060   PRINT  \ PRINT "Next Screen: "; 
+       PRINT " 1)Engine  2)Effector  3)Intel  4)Damage  5)Debug"; 
+       INPUT cmd \cmd:=MOD(cmd,6)
+       IF cmd=0 THEN 1050
+       ON cmd GOSUB 2000,2100,2200,2300,2400
        IF flags(4)=FALSE THEN 
          flags(4):=TRUE \ GOTO 1060
        ENDIF 
-     ENDLOOP 
+1070 ENDLOOP 
      
 2000 (* engines
      GOSUB 9013
@@ -290,7 +296,7 @@ PROCEDURE consGame
        NEXT yloop
      ENDIF 
      IF cmd=22 THEN  \(* ranged weapon 
-       glxY:=playY(me) \glxX:=playX(me)
+       glxY:=playY(token) \glxX:=playX(token)
        GOSUB 9100
        char:=MID$(gscan(1,glxY),glxX,1)
        IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
@@ -298,11 +304,12 @@ PROCEDURE consGame
        ENDIF 
      ENDIF 
      IF cmd=23 THEN 
-       glxY:=playY(me) \glxX:=playX(me) \ GOSUB 9100
+       PRINT "15c4 debug:"; me,token
+       glxY:=playY(token) \glxX:=playX(token) \ GOSUB 9100
        (* tmp:=ASC(MID$(gscan(2,glxY),glxX,1)) \tint(1):=INT(tmp/100)            
        (* tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint(2)*10
        testx:=glxX \testy:=glxY \ GOSUB 9008
-       tmp:=ASC(MID$(gscan(2,playY(me)),playX(me),1)) \rint(1):=INT(tmp/100)
+       tmp:=ASC(MID$(gscan(2,playY(token)),playX(token),1)) \rint(1):=INT(tmp/100)
        tmp:=tmp-rint(1)*100 \rint(2):=INT(tmp/10) \rint(3):=tmp-rint(2)*10
        PRINT "Recoverable matl:    1) M/AM="; tint(1); "    2) Atom="; tint(2); "    3) Chem="; tint(3)
        INPUT "   Select one:",tmp
@@ -316,14 +323,14 @@ PROCEDURE consGame
        tmp:=tint(1)*100+tint(2)*10+tint(3)
        glvl:=2 \char:=CHR$(tmp) \testx:=glxX \testy:=glxY \ GOSUB 9000
        tmp:=rint(1)*100+rint(2)*10+rint(3)
-       glvl:=2 \char:=CHR$(tmp) \testx:=playX(me) \testy:=playY(me) \ GOSUB 9000
+       glvl:=2 \char:=CHR$(tmp) \testx:=playX(token) \testy:=playY(token) \ GOSUB 9000
      ENDIF 
-     glvl:=1 \testx:=playX(me) \texty:=playY(me) \ GOSUB 9000
-     testx:=playX(me) \testy:=playY(me) \ GOSUB 9008
+     glvl:=1 \testx:=playX(token) \texty:=playY(token) \ GOSUB 9000
+     testx:=playX(token) \testy:=playY(token) \ GOSUB 9008
      PRINT "   Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3)
      RETURN 
 2200 PRINT "  Intel:"
-     teststr:="on " \ IF flags(1)=TRUE THEN  \teststr:="off" \ ENDIF            
+     teststr:="on " \ IF flags(1)=TRUE THEN  \teststr:="off" \ ENDIF
      PRINT " 1) Qprobe  2) Qscan  3) Scores  4) Legend "; teststr; 
      INPUT " ",cmd
      cmd:=MOD(cmd,5)+30
@@ -331,13 +338,13 @@ PROCEDURE consGame
      ON cmd-30 GOSUB 2210,2210,2220,2230
      RETURN 
 2210 (* probes
-     glxX:=playX(me) \glxY:=playY(me) \glvl:=cmd-30
+     glxX:=playX(token) \glxY:=playY(token) \glvl:=cmd-30
      GOSUB 9100
      IF track<dist THEN 
        PRINT "probe destroyed."
        RETURN 
      ENDIF 
-     IF scanx=quadX OR scany=quadY THEN  \flags(4):=FALSE \ ENDIF            
+     IF scanx=quadX OR scany=quadY THEN  \flags(4):=FALSE \ ENDIF
      testx:=glxX \testy:=glxY \ GOSUB 9007
      tmp1:=me \scanx:=quadX \scany:=quadY
      tcnt:=1 \glxX:=quadX*8-7 \glxY:=quadY*8-7
@@ -402,7 +409,7 @@ PROCEDURE consGame
                IF tmp<10 THEN  \ PRINT " ";  \ ENDIF 
                PRINT tmp; 
              ENDIF 
-             PRINT "."; 
+             PRINT ":"; 
            ENDIF 
          NEXT xloop
          PRINT " |    "; 
@@ -418,8 +425,8 @@ PROCEDURE consGame
        PRINT dashes
      ENDIF 
      INPUT "next ",a$
-     glxX:=playX(me) \glxY:=playY(me)
-     testx:=playX(me) \testy:=playY(me) \ GOSUB 9007
+     glxX:=playX(token) \glxY:=playY(token)
+     testx:=glxX \testy:=glxY \ GOSUB 9007
      RETURN 
 2211 teststr:=LEFT$(tscan(glvl,tmp0),tmp1-1)+char
      tscan(glvl,yloop):=teststr+MID$(tscan(glvl,tmp0),tmp1+1,8)
@@ -455,7 +462,7 @@ PROCEDURE consGame
        IF token=me THEN 
          PRINT " Matl in stock: MAM:"; playM(me,1); " Atm:"; playM(me,2); " Chm:"; playM(me,3)
          testx:=playX(me) \testy:=playY(me) \ GOSUB 9008
-         PRINT " Cargo in hold:   MAM:"; tint(1); " Atm"; tint(2); " Chm:"; tint(3)
+         PRINT " Cargo in hold:   MAM:"; tint(1); " Atm:"; tint(2); " Chm:"; tint(3)
          PRINT "Divide 100 units time between 6 repair tasks:"
          RESTORE 9992
          FOR mloop=1 TO 3
@@ -465,8 +472,8 @@ PROCEDURE consGame
            IF flags(6)=FALSE THEN  \ INPUT rint(mloop) \ ENDIF 
            tmp0:=tint(1)+tint(2)+tint(3)
            tmp1:=rint(1)+rint(2)+rint(3)
-           IF tmp0>99 THEN  \tint(mloop):=tint(mloop)-(tmp0-100)\flags(5):=TRUE \ ENDIF 
-           IF tmp1>99 THEN  \rint(mloop):=rint(mloop)-(tmp1-100)\flags(6):=TRUE \ ENDIF 
+           IF tmp0>99 THEN  \tint(mloop):=tint(mloop)-(tmp0-100) \flags(5):=TRUE \ GOTO 2305 \ ENDIF 
+           IF tmp1>99 THEN  \rint(mloop):=rint(mloop)-(tmp1-100) \flags(6):=TRUE \ GOTO 2305 \ ENDIF 
          NEXT mloop
        ENDIF 
      ENDIF 
@@ -475,14 +482,15 @@ PROCEDURE consGame
          tint(mloop):=playM(token,mloop)
        ENDIF 
      NEXT mloop
-     testx:=playX(me) \testy:=playY(me) \ GOSUB 9008
+     testx:=playX(token) \testy:=playY(token) \ GOSUB 9008
      FOR mloop=1 TO 3 \pint(mloop):=tint(mloop) \NEXT mloop
      FOR mloop=1 TO 100
        FOR xloop:=1 TO 3
          IF tint(xloop)>0 THEN 
            FOR yloop=0 TO 10 STEP 3
              IF playS(me,xloop+yloop)<100 THEN 
-               playS(me,xloop+yloop):=playS(me,xloop+yloop)+1
+               (* DC speed
+               playS(me,xloop+yloop):=playS(me,xloop+yloop)+3
                tint(xloop):=tint(xloop)-1 \rint(xloop):=rint(xloop)+1
                IF MOD(mloop,4)=1 THEN  \(* use matl at 1/4 rate
                  playM(token,xloop):=playM(token,xloop)-1
@@ -496,7 +504,7 @@ PROCEDURE consGame
        NEXT xloop
      NEXT mloop
      FOR mloop=1 TO 3 \tint(mloop):=sint(mloop) \NEXT mloop
-     testx:=playX(me) \testy:=playY(me) \ GOSUB 9008 \(* raw mtl to hold
+     testx:=playX(token) \testy:=playY(token) \ GOSUB 9008 \(* raw mtl to hold
      RETURN 
 2310 tmp0:=0 \tmp1:=0
      FOR yloop=1 TO 3
@@ -507,8 +515,8 @@ PROCEDURE consGame
      RETURN 
      
 2400 PRINT " Debug Page:"
-     teststr:="on " \ IF flags(2)=TRUE THEN  \teststr:="off" \ ENDIF            
-     teststr2:="More" \ IF flags(3)=TRUE THEN  \teststr2:="Less"\ ENDIF 
+     teststr:="on " \ IF flags(2)=TRUE THEN  \teststr:="off" \ ENDIF
+     teststr2:="More" \ IF flags(3)=TRUE THEN  \teststr2:="Less" \ ENDIF 
      flags(4):=FALSE
      PRINT " 1) "; teststr2; " info  2) Jump X,Y   3) Dump Galaxy   4) Dump Players  "
      PRINT " 5) Spy "; teststr; "   6) Skip turn    "; 
@@ -591,7 +599,7 @@ PROCEDURE consGame
          ELSE 
            PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN(4),playN(5),playN(6),playN(7),playN(8)
            IF flags(3)=TRUE THEN 
-             PRINT "M/am - Atomic - Chemical  1) C  2) A  3) A+C  4) M  5) M+C  6) A+M  7) all"
+             PRINT "M/am - Atomic - Chemical  1) C  2) A  3) C+A  4) M  5) M+C  6) M+A  7) all"
            ENDIF 
          ENDIF 
          INPUT "q=quit ",a$
@@ -606,13 +614,13 @@ PROCEDURE consGame
        PRINT "  Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3)
        PRINT spaces; spaces; " MAM:"; playM(lloop,1); " Atm:"; playM(lloop,2); " Chm:"; playM(lloop,3)
        PRINT spaces; 
-       PRINT USING "3(s8<,i4>),s1>",playR(1),playS(me,1),playR(2),playS(me,2),playR(3),playS(me,3),"%"
+       PRINT USING "3(s8<,i4>),s1>",playR(1),playS(lloop,1),playR(2),playS(lloop,2),playR(3),playS(lloop,3),"%"
        PRINT spaces; 
-       PRINT USING "3(s8<,i4>),s1>",playR(4),playS(me,4),playR(5),playS(me,5),playR(6),playS(me,6),"%"
+       PRINT USING "3(s8<,i4>),s1>",playR(4),playS(lloop,4),playR(5),playS(lloop,5),playR(6),playS(lloop,6),"%"
        PRINT spaces; 
-       PRINT USING "3(s8<,i4>),s1>",playR(7),playS(me,7),playR(8),playS(me,8),playR(9),playS(me,9),"%"
+       PRINT USING "3(s8<,i4>),s1>",playR(7),playS(lloop,7),playR(8),playS(lloop,8),playR(9),playS(lloop,9),"%"
        PRINT spaces; 
-       PRINT USING "3(s8<,i4>),s1>",playR(10),playS(me,10),playR(11),playS(me,11),playR(12),playS(me,12),"%"
+       PRINT USING "3(s8<,i4>),s1>",playR(10),playS(lloop,10),playR(11),playS(lloop,11),playR(12),playS(lloop,12),"%"
        IF lloop=4 OR lloop=8 THEN  \ INPUT "next ?",a$ \ ENDIF 
      NEXT lloop
      RETURN 
@@ -658,33 +666,31 @@ PROCEDURE consGame
      RETURN 
      
 3000 (* simple AI find closest
-     prnstr:=" "
-     
-     tmp:=0
+     prnstr:=" " \tmp:=0
      IF playI(token)<0 THEN  \(* rep<0 means AI
+       comp(token):=999
        FOR xloop=1 TO 8 \(* each pot. opponent
-         IF token=xloop THEN 
-           range(xloop):=999
-         ELSE 
-           range(xloop):=0
+         IF token<>xloop THEN 
            tmp:=ABS(playX(xloop)-playX(token))
            tmp0:=ABS(playY(xloop)-playY(token))
-           range(xloop):=tmp+tmp0
+           comp(xloop):=tmp+tmp0
+           (* PRINT "Dist to "; playN(xloop); " "; comp(xloop)
          ENDIF 
        NEXT xloop
        FOR xloop=1 TO 8 \(* find closer enemy
-         IF range(xloop)<range(token) THEN 
+         IF xloop<>token AND comp(xloop)<comp(token) THEN 
            target(token):=xloop
-           range(token):=range(lloop)
-           (* PRINT " new:"; target(token)
+           comp(token):=comp(xloop)
          ENDIF 
-         (* PRINT "target="; target(token); " "; range(token)
+         (* PRINT token; " target="; target(token); " "; comp(token)
        NEXT xloop
+       (* INPUT a$
+       range(token):=comp(token)
+       tmp:=range(target(token))
        prnstr=playN(token)+": "+STR$(range(token))+" to "
        prnstr:=prnstr+playN(target(token))+" "
-       IF range(token)<40 AND range(token)<>0 THEN 
-         tmp:=range(target(token))
-         IF range(token)<16 THEN 
+       IF tmp<9 AND tmp<>0 THEN 
+         IF tmp<4 THEN 
            prnstr:=prnstr+"attacking."
            tmp0:=target(token) \tmp:=16-range(target(token))
            tmp1:=1 \tmp2:=12 \ GOSUB 9005
@@ -693,8 +699,9 @@ PROCEDURE consGame
          IF RIGHT$(prnstr,4)<>"ing." THEN 
            prnstr:=prnstr+"giving chase."
          ENDIF 
-         testx:=playX(token) \testy:=playY(token)
-         char:=" " \glvl:=1 \ GOSUB 9000
+         (* testx:=playX(token) \testy:=playY(token)
+         (* char:=" " \glvl:=1 \ GOSUB 9000
+         GOSUB 9013
          tmp:=playX(token) \tmp1:=playX(target(token))
          GOSUB 9003 \playX(token):=tmp
          tmp:=playY(token) \tmp1:=playY(target(token))
@@ -704,8 +711,9 @@ PROCEDURE consGame
            GOSUB 9001
            playX(token):=glxX \playY(token):=glxY
          ENDIF 
-         testx:=playX(token) \testy:=playY(token)
-         char:=LEFT$(playN(token),1) \ GOSUB 9000
+         (* testx:=playX(token) \testy:=playY(token)
+         (* char:=LEFT$(playN(token),1) \ GOSUB 9000
+         GOSUB 9014
        ENDIF 
      ENDIF 
      IF flags(2)=TRUE THEN  \ PRINT prnstr \ ENDIF 
@@ -729,7 +737,7 @@ PROCEDURE consGame
      
 9002 (* phazer, torpedo damage to other players.  dist=distance commanded 1-64 /(*** VERIFY ME ***
      char:=MID$(gscan(1,glxY),glxX-1,3)
-     IF char<>LEFT$(playN(me),1) THEN 
+     IF char<>LEFT$(playN(token),1) THEN 
        IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
          FOR play=1 TO 8
            IF LEFT$(playN(play),1)=char THEN 
@@ -856,6 +864,7 @@ PROCEDURE consGame
      randl:=1 \rlmt:=12 \ GOSUB 9010 \targ0:=randl
      IF targ0>0 THEN 
        PRINT " Collision damage "; dist0; "% to "; MID$(playR(targ0),2,5)
+       PRINT 
        randl:=-1 \rlmt:=20 \ GOSUB 9010 \dist0:=randl
        cmd0:=63 \play:=token \ GOSUB 2500
      ENDIF 
@@ -893,14 +902,14 @@ PROCEDURE consGame
      targ:=MOD(targ,9)
      pin:=MOD(pin,10)
      IF targ*pin=0 THEN  \ GOTO 9105 \ ENDIF 
-     testx:=playX(me) \testy:=playY(me) \ GOSUB 9007
+     testx:=playX(token) \testy:=playY(token) \ GOSUB 9007
      tmpX:=quadX \tmpY:=quadY
      dist:=pin \(* tmp0=pri.system, tmp1=sec.system
      IF cmd=11 THEN 
        dist:=pin*5 \dmax:=64 \tmp0:=1 \tmp1:=4
      ENDIF 
      IF cmd=12 THEN 
-       dist:=pin*3 \dmax:=9 \tmp0:=2 \tmp1:=5
+       dist:=pin*2 \dmax:=9 \tmp0:=2 \tmp1:=5
      ENDIF 
      IF cmd=21 THEN 
        dist:=pin*2 \dmax:=27 \tmp0:=5 \tmp1:=8
@@ -920,7 +929,7 @@ PROCEDURE consGame
      cmd0:=62 \play:=me \targ0:=tmp0 \ GOSUB 2500 \(* wear on pri.system
      cmd0:=62 \play:=me \targ0:=tmp1 \ GOSUB 2500 \(* wear on sec.system
      dtmp0:=playS(me,tmp0) \dtmp1:=playS(me,tmp1) \(* dtmp value those 2 systems
-     dist:=dist*(dtmp0/100)*(dtmp1/100) \(* distance reduced by both systems
+     dist:=INT(dist*(dtmp0/100)*(dtmp1/100)) \(* distance reduced by both systems
      IF dist>dmax THEN  \dist:=dmax \ ENDIF 
      ON targ GOSUB 9120,9121,9122,9123,9124,9125,9126,9127
      
@@ -932,7 +941,7 @@ PROCEDURE consGame
        IF glxY>64 THEN  \glxY:=1 \tmp0:=1 \ ENDIF 
        testx:=glxX \testy:=glxY \ GOSUB 9007
        IF cmd=12 OR cmd=22 THEN 
-         IF tmpX<>quadX THEN  \glxX:=glxX-xstep \ GOTO 9105 \ ENDIF                
+         IF tmpX<>quadX THEN  \glxX:=glxX-xstep \ GOTO 9105 \ ENDIF
          IF tmpY<>quadY THEN  \glxY:=glxY-ystep \ GOTO 9105 \ ENDIF
          IF MID$(gscan(1,glxY),glxX,1)<>" " THEN  \(* subwarp collision
            IF cmd=22 THEN  \ PRINT "Torpedo destroyed" \ GOTO 9105 \ ENDIF 
@@ -966,7 +975,7 @@ PROCEDURE consGame
      PRINT "You died!"
      END 
      
-9990 DATA "pexpress",2,"entrprze",3,"hrtgold",1,"axiom",2,"nebanzzr",3,"mfalcon",3,"tardis7",3
+9990 DATA "pexpress",-2,"entrprze",-3,"hrtgold",-1,"axiom",-2,"nebanzzr",-3,"mfalcon",-3,"tardis7",-3
 9991 DATA "  Warp: ","% Impls:","%   RCS:","  Main: ","%   APU: ","%  Batt:"," Phasr:","%  Torp:","% Mines:","  Shld: ","%  Envr:","% Consu:"
 9992 DATA "Antimatter (Warp, Main Pwr, Phaser, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
      DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
