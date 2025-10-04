@@ -1,5 +1,5 @@
-PROCEDURE consGame
-     (* consGame 04 - serial terminal game for TFR/905h
+PROCEDURE consTrek
+     (* consTrek 04 - serial terminal game for TFR/905h
      (* Trek skin -  ai fixes
      DIM gscan(2,64):STRING[64]
      DIM fscan(3):STRING[32]
