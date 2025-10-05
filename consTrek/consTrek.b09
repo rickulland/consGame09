@@ -1,5 +1,5 @@
 PROCEDURE consGame
-     (* consGame 04 - serial terminal game for TFR/905h
+     (* consGame 05 - serial terminal game for TFR/905h
      (* Trek skin -  ai fixes
      DIM gscan(2,64):STRING[64]
      DIM fscan(3):STRING[32]
@@ -121,8 +121,8 @@ PROCEDURE consGame
        IF testx>20 THEN  \testx:=testx+44 \ ENDIF 
        IF testy>20 THEN  \testy:=testy+44 \ ENDIF 
        GOSUB 9004
-       PRINT testx,testy
-       INPUT a$
+       (* PRINT testx,testy
+       (* INPUT a$
        char:=LEFT$(playN(lloop),1)
        playX(lloop):=testx \playY(lloop):=testy
        glvl:=1 \ GOSUB 9000
@@ -299,12 +299,12 @@ PROCEDURE consGame
        glxY:=playY(token) \glxX:=playX(token)
        GOSUB 9100
        char:=MID$(gscan(1,glxY),glxX,1)
-       IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
+       IF SUBSTR(char,"abcdefghijklmnprstuvwxyz")>0 THEN 
+                       abcdefghijklmnprstuvwxyz
          GOSUB 9002 \(* ranged hit 
        ENDIF 
      ENDIF 
      IF cmd=23 THEN 
-       PRINT "15c4 debug:"; me,token
        glxY:=playY(token) \glxX:=playX(token) \ GOSUB 9100
        (* tmp:=ASC(MID$(gscan(2,glxY),glxX,1)) \tint(1):=INT(tmp/100)            
        (* tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint(2)*10
@@ -686,7 +686,7 @@ PROCEDURE consGame
        NEXT xloop
        (* INPUT a$
        range(token):=comp(token)
-       tmp:=range(target(token))
+       tmp:=range(token)
        prnstr=playN(token)+": "+STR$(range(token))+" to "
        prnstr:=prnstr+playN(target(token))+" "
        IF tmp<9 AND tmp<>0 THEN 
@@ -717,6 +717,7 @@ PROCEDURE consGame
        ENDIF 
      ENDIF 
      IF flags(2)=TRUE THEN  \ PRINT prnstr \ ENDIF 
+     INPUT a$
      tmp:=0
      RETURN 
      (* Utility Stuffs -----------------------------------------------------
@@ -738,7 +739,7 @@ PROCEDURE consGame
 9002 (* phazer, torpedo damage to other players.  dist=distance commanded 1-64 /(*** VERIFY ME ***
      char:=MID$(gscan(1,glxY),glxX-1,3)
      IF char<>LEFT$(playN(token),1) THEN 
-       IF SUBSTR(char,"ABCDEFGHIJKLMNPRSTUVWXYZ")>0 THEN 
+       IF SUBSTR(char,"abcdefghijklmnprstuvwxyz")>0 THEN 
          FOR play=1 TO 8
            IF LEFT$(playN(play),1)=char THEN 
              IF cmd=21 THEN (* phaser damage all warp powered systems

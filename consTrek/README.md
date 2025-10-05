@@ -42,24 +42,24 @@ Sublight speed devices (impluse,probe,torpedo) require a clear path to target. L
 ### Engine:RCS ###
 The reaction control system keeps the ship oriented and navigable. Accepts no inputs, just keep the maintenance up.  
 
-Effector:Phaser
+### Effector:Phaser ###
 Aim for the 'ground zero' of a M/AM event. Mainly effective against other M/AM systems, some damage to Atomic. Do not phase your own quadrant!
 	
-Effector:Torpedo
+###  Effector:Torpedo ###
 A torpedo is simply a probe with fission warhead screwed on. It will detonate on impact or at a defined distance. Within a quadrant, torpedos are a most effective weapon, as they can bypass shields to physically damage any system. 
 	
 ### Effector:Miner ###
 While parked next to any other system or ship, you can try to extract raw materials. These can be traded, or refined into repair material. See: Damage Control 
 	Mining may require a trade agreement See: Notable objects
 	
-Intel:Qprobe
+### Intel:Qprobe ###
 A Qprobe is warped into some nearby Quadrant and returns a standard targeting scan of that quadrant. Not very invasive and it can't be tracked back to you. Use qprobes to verify how well warp will work today, and let the nav computer pick an empty spot to 'land' in.
 
-Intel:Qscan
+### Intel:Qscan ###
 A Qscan is similar to a probe, but more invasive with visible backtrack. What you gain is insight into recoverable material in or near each object - a 3 digit number estimating antimatter, atomic, and chemical stock in a range of 0-5.
 To scan the current quadrant, aim back across the center of it with distance 1. Players nearby may consider this a hostile act, be discreet and do your scans before 'popping in.'  
 
-Intel:Scores
+### Intel:Scores ###
 Accumulated status and possesions. Not a turn.
 
 ### Intel:Legend (on/off) ###
@@ -98,7 +98,6 @@ Miner will try to extact raw material from any adjacent object. Initially to rep
 
 ### Service: Consumables ###
 Replicators are sexy, but expensive and high maintenance. Sublight transport kepts the galley cookin. These operations are bundled under 'consumables'.
-
 
 ## Debug menu ## 
 The engine does things 'Trek' players shouldn't. This debug menu is provided for debugging and balancing
