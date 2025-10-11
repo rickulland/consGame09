@@ -1,34 +1,33 @@
-ConsTrek user manual
+== Gameplay ==
 
-This initial release is basically the bones of the multiplayer version with other players reduced to 'pacman' AI - some will chase, others will run away. The manual is written assuming other humans will be allowed, but your neighbors haven't read it yet, so...
+ We started with 'classic Trek' where 'the Enterprise' (you) runs around killing things while stopping by a starbase occasionally for repairs and resupply. Except now it is an 8 player game (seven might be AI), with players grouped in up to 4 tribes.  
+ Play begins as individuals attack other players or mine raw material, building strength by effort or spoils of war. Each tribe has a base where members can be rapidly restored to health. More importantly, members can join together with the base and attack en masse (borg out). Remaining individuals won't remain for long.The game concludes with 'boss battles' between Triborgs.  Last Tribe standing wins.
 
-Weird stuff first. This game is organized into rounds, with every player (real or human) being called in random order until all have played. Without knowing who's next or even who's left, the only thing to do is just play. Also remember in turn based games, time and distance are the same thing. Warp factor 3 is both a speed and the distance covered in one turn. So shut up about the Kessel run already.
+Weird stuff first. This game is organized into rounds. Inside each, every player (real or human) is called in random order until all have played. Without knowing who's next or even who's left, the only thing to do is just play. And another thing... in turn based games, time and distance blur - warp factor 3 is both a speed and the distance covered in one turn. So shut up about the Kessel run already.
 
-Speaking of distance, space is spacious. Looking out the window shows... nothing, usually. Instead notable surroundings are listed in grids or 'quadrants' of 8x8 sectors. The scale is distorted such that a direct route to every direction and 'depth' is a straight line and a distance. Imagine looking down upon an ancient naval chart, compass rose and ruler in hand.
+Speaking of distance, space is spacious. Looking out the window shows... nothing, usually. Instead notable surroundings are listed in grids or 'quadrants' of 8x8 sectors. The scale is distorted such that a direct route to any system charts as a straight line and a distance. Imagine looking down upon an ancient naval chart, compass rose and ruler in hand. Due to the extreme scaling, the apparent edge of the quadrant is not a line, or even a boundary. It's simply the point compression scaling gives up. Outside the galaxy center,  it's usually impossible to impulse to the next quadrant - keep that warp system working. 
 
-Due to the extreme scaling, the apparent edge of the quadrant is not a line, or even a boundary. It's simply the point compression scaling gives up. Outside the galaxy center,  it's usually impossible to impulse to the next quadrant - keep that warp system working. 
+== Display ==
+Trek is written to run on any serial text terminal without display codes, even cursor position - an Apple1 could do it. The result is a scrolling display where a 'screen' is technically the last 20ish lines, but this can be adapted to. For example, the game begins with a Legend, meaning each screen spends a few lines listing every player, tribe, and object by full name before the display proper. After a few turns the player can turn that off leaving more of the recent action visible. Finally, if you wander too far from the following summary screen command '0' will reprint it.
 
-As to physical display. Trek is written to run on any serial text terminal without display codes, even cursor position - an Apple1 could do it. The result is a scrolling display where a 'screen' is technically the last 20ish lines, but more on this. 
-For example, the game beigns with a Legend, meaning each turn spends a few lines listing every player, tribe, and object by full name before the display proper. A few turns in the player can turn that off, leaving more of the recent action visible. Finally, if you weander too far from the following summary screen 'command 0' will reprint the last scan.
-
-After the Legend (or not) is the primary targeting or 'Quadrant' display, using that crazy spacious space scaling idea to squash things into a flat grid. The things being squashed include big things:
+Following the Legend (or not) is the primary targeting or 'Quadrant' display, using that crazy spacious space scaling idea to squash things into a flat grid. The things being squashed include big things:
    1) Nude stars '*' - usually something to miss or hide behind, however some 'stars' have minable antimatter. 
-   2) Preciv planetary system 'o' can be mined with little fear of local retaliation.
+   2) Preciv planetary system 'o' can be mined of most material classes with little fear of retaliation.
    3) Civs in the 'suborbital' class '@' are not rigidly regulated, but tread lightly. Irritating the local MIB will most assuredly cost a money. 
    4) Civs with extra-orbital capabilities 'O' are off limits without a trade agreement.  
-   5) 'Q' means another galaxian culture, perhaps another player's home. If you do not already know them it is probably because they hate you. This might not be a legal problem. Have fun with that.
+   5) 'Q' means another galaxian culture, perhaps another player's home. If you do not already know them it is probably because they hate you. Have fun with that.
 
 And small things:
-   6) player initial in lower case letters, except o FIXME
-   7) tribal bases as upper case letters, except O FIXME
+   6) player initial in lower case letters, except o 
+   7) tribal bases as upper case letters, except O 
 
-Both groups need attention for different reasons. You can accidentally run into big things 1-5, while small things 6-7 might chase you. 
+Both groups need attention for different reasons. You can accidentally run into big things 1-5, while small things 6-7 might attack you. 
 
 Just right of the targeting map is an inventory of the surrounding quadrants - dumb systems, smart systems, and other players. Remember, if you can see them, they can see you. Scans (and more) may be exchanged. Conduct yourself accordingly.
 
 Under the LR inventory (so lower right third) is your ship status table. There are 3 major systems. Each column begins with the power generator/major user, followed by storage capacity, and finally 2 subsystem groups using that power source. For example, when underway 'Warp' is consumed moving the ship. Otherwise, it recharges Main Power, which phasers and shields both depend on. During play all of these items are subject to wear, and of course collision or battle damage. See: Damage Control. 
 
-You will also see a lot of the Targeting Screen. Most commands are based on the Quad display and request input using this simple compass rose - 8 directions and a distance or effort of 1-9. Accuracy of direction is affected by RCS health (qv) while distance is affected by the health of each system involved.
+You will also see a lot of the Targeting Screen. Many commands are based on the Quad display and request input using this simple compass rose - 8 directions and a distance or effort of 1-9. Accuracy of direction is affected by RCS health (qv) while distance is affected by the health of each system involved.
 
 
 ## Commands ##
@@ -37,13 +36,13 @@ You will also see a lot of the Targeting Screen. Most commands are based on the 
 Under good repair, warp 8 will move about 4 quadrants per turn. Chance of substantial collision damage when jumping blind. Allow the nav computer to find an empty spot to 'land' in by sending a (warp powered) probe or scan out the proposed course and distance first.
 
 ### Engine:Impulse ###
-Sublight speed devices (impluse,probe,torpedo) require a clear path to target. Looses 'punch' towards the edges of each quadrant, and usually can't reach the next one.
+Sublight speed devices require a clear path to target, loose 'punch' towards the edges of each quadrant, and usually can't reach the next one.
 
 ### Engine:RCS ###
-The reaction control system keeps the ship oriented and navigable. Accepts no inputs, just keep the maintenance up.  
+The reaction control system keeps the ship oriented and navigable. Accepts no inputs, just keep the maintenance up and know targeting and navigation depend greatly on this system.  
 
 ### Effector:Phaser ###
-Aim for the 'ground zero' of a M/AM event. Mainly effective against other M/AM systems, some damage to Atomic. Do not phase your own quadrant!
+Aim for the 'ground zero' of a M/AM event. Mainly effective against other M/AM systems, some damage to Atomic. Do not phase your own quadrant lightly!
 	
 ###  Effector:Torpedo ###
 A torpedo is simply a probe with fission warhead screwed on. It will detonate on impact or at a defined distance. Within a quadrant, torpedos are a most effective weapon, as they can bypass shields to physically damage any system. 
@@ -94,10 +93,19 @@ You know- air, heat, and stuff. This dies, you die, everybody dies.
 The reaction control system draws from all other power supplies. It is not only inertial stability but the power source of last resort. Your ship and crew will live as long as this system does.
 
 ### Effector: Miner ###
-Miner will try to extact raw material from any adjacent object. Initially to repair supplies, then as saleable cargo in the hold. 
+Miner will try to extact raw material from any adjacent object to store as saleable cargo in the hold. Can (at a cost) be refined into repair stuff.
 
 ### Service: Consumables ###
-Replicators are sexy, but expensive and high maintenance. Sublight transport kepts the galley cookin. These operations are bundled under 'consumables'.
+Replicators are sexy, but expensive and high maintenance. Sublight transport kepts the crew galley cookin. These operations are bundled under 'consumables'.
+
+## AI opponents ##
+"If you don't think too well, don't think too much"- Tom Magliozzi
+AI players suffer the same wear and damage concerns as humans. They are more predictable, generally following one of these sub-quests.
+   1) If ship is damaged, fix it.
+   2) If low on repair material head towards your base and restock(RSN)
+   3) Chase or attack any non-tribesman visible in LR scan (3x3 quads)
+   4) Join other tribesmen to form a wolfpack.(RSN)
+   5) Wolfpak attack opposing bases(RSN) 
 
 ## Debug menu ## 
 The engine does things 'Trek' players shouldn't. This debug menu is provided for debugging and balancing
