@@ -52,11 +52,12 @@ While parked next to any other system or ship, you can try to extract raw materi
 	Mining may require a trade agreement See: Notable objects
 	
 ### Intel:Qprobe ###
-A Qprobe is warped into some nearby Quadrant and returns a standard targeting scan of that quadrant. Not very invasive and it can't be tracked back to you. Use qprobes to verify how well warp will work today, and let the nav computer pick an empty spot to 'land' in.
+A Qprobe is warped into some nearby Quadrant and returns a standard scan of the area. It can detect other ships, but can not ID them or report exact location. A period indicates a ship withing a sector or two. On the upside, a probe is barely space junk and doesn't lead back to you. Use them to verify how well warp works after damage, and provide the nav computer a 'landing template' for warping in.
 
 ### Intel:Qscan ###
-A Qscan is similar to a probe, but more invasive with visible backtrack. What you gain is insight into recoverable material in or near each object - a 3 digit number estimating antimatter, atomic, and chemical stock in a range of 0-5.
-To scan the current quadrant, aim back across the center of it with distance 1. Players nearby may consider this a hostile act, be discreet and do your scans before 'popping in.'  
+A Qscan is similar to a probe, but more invasive with visible backtrack. Aims like the warp engines, so you can scan the current quadrant by pointing back across the center with distance 1. Note that most players wont care if you are scanning from a distance, but once you are nearby this might be considered a hostile act. Be discreet. 
+What you gain is insight into recoverable material in or near each object - a 3 digit number estimating antimatter, atomic, and chemical stock in a range of 0-5.
+
 
 ### Intel:Scores ###
 Accumulated status and possesions. Not a turn.
