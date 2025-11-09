@@ -12,13 +12,10 @@ PROCEDURE consGame
  00DB      DIM char:STRING[1]
  00E7      DIM random(3),dist,dist0,dtmp1,dtmp2,glxX,glxY:REAL
  010B      DIM playS(8,12),playM(8,3):INTEGER
- 0128      DIM playX(8),playY(8),tribeX(8),tribeY(8),playI(8),playC(8)
-            ,playP(8),syst(6):INTEGER
- 0173      DIM comp(8),range(8),target(8),tint(3),rint(3),sint(3),pint
-            (3):INTEGER
+ 0128      DIM playX(8),playY(8),tribeX(8),tribeY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
+ 0173      DIM comp(8),range(8),target(8),tint(3),rint(3),sint(3),pint(3):INTEGER
  01B5      DIM tribeN(5),playN(8),playR(12):STRING[8]
- 01D8      DIM tmp,tmp0,tmp1,tmp2,tmp3,tmp4,scanx,scany,testx,testy,tmpX
-            ,tmpY:INTEGER
+ 01D8      DIM tmp,tmp0,tmp1,tmp2,tmp3,tmp4,scanx,scany,testx,testy,tmpX,tmpY:INTEGER
  020B      DIM randl,rlmt,lloop,mloop,xloop,yloop:INTEGER
  0226      DIM cmd,cmd0,pin,tcnt,rounds,quadX,quadY:INTEGER
  0245      DIM me,play,dmax,glvl,targ,targ0,token,xstep,ystep:INTEGER
@@ -30,8 +27,7 @@ PROCEDURE consGame
  02D7        played(lloop):=FALSE \hosted(lloop):=TRUE
  02EB        playP(lloop):=1 \target(lloop):=lloop
  0302      NEXT lloop
- 030D      RESTORE 9990 \ FOR lloop:=2 TO 8 \ READ playN(lloop),playI(
-              lloop) \NEXT lloop
+ 030D      RESTORE 9990 \ FOR lloop:=2 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
  033E      RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
  0367      RESTORE 9993 \sysname:=" "
  0374      FOR lloop:=1 TO 6
@@ -62,8 +58,7 @@ PROCEDURE consGame
  056D      ENDLOOP 
  0571      playI(me):=4 \(* INPUT "and tribe? (8 CHAR UC)";playI(me)
  05A7      PRINT "Creating Galaxy. please wait..."
- 05CA      RESTORE 9990 \ FOR lloop=2 TO 8 \ READ playN(lloop),playI(lloop
-              ) \NEXT lloop
+ 05CA      RESTORE 9990 \ FOR lloop=2 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
  05FB      RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
  0624      FOR yloop:=1 TO 8
  0634        playX(yloop):=0 \playY(yloop):=0
@@ -97,8 +92,7 @@ PROCEDURE consGame
  0826          ENDIF 
  0828        EXITIF MID$(gscan(1,testy),testx,1)=" " THEN 
  0840          IF syst(2)>0 THEN 
- 084E            tmp0:=0 \char:="o" \syst(2):=syst(2)-1 \tmp1:=1 \tmp2
-                  :=3
+ 084E            tmp0:=0 \char:="o" \syst(2):=syst(2)-1 \tmp1:=1 \tmp2=3
  087B          ELSE 
  087F            IF syst(3)>0 THEN 
  088D              char:="@" \syst(3):=syst(3)-1 \tmp1:=1 \tmp2:=5
@@ -107,8 +101,7 @@ PROCEDURE consGame
  08C5                char:="O" \syst(4):=syst(4)-1 \tmp1:=4 \tmp2:=5
  08EB              ELSE 
  08EF                IF syst(5)>0 THEN 
- 08FD                  char:="Q" \syst(5):=syst(5)-1 \tmp0:=2 \tmp1:=5
-                         \tmp2:=4
+ 08FD                  char:="Q" \syst(5):=syst(5)-1 \tmp0:=2 \tmp1:=5\tmp2:=4
  092A                ELSE 
  092E                  char:="*" \tmp0:=1 \tmp1:=0 \tmp2:=0
  094B                ENDIF 
@@ -140,8 +133,7 @@ PROCEDURE consGame
  0ACD        LOOP 
  0ACF          LOOP 
  0AD1            testx:=INT(RND(64)+1) \testy:=INT(RND(64)+1)
- 0AEF          EXITIF testx<17 OR testx>47 AND testy<17 OR testy>47 THEN
-                
+ 0AEF          EXITIF testx<17 OR testx>47 AND testy<17 OR testy>47 THEN                
  0B10          ENDEXIT 
  0B14          ENDLOOP 
  0B18          flags(5):=FALSE
@@ -210,10 +202,8 @@ PROCEDURE consGame
  0F00        FOR yloop=1 TO 8
  0F10          playC(yloop):=0
  0F1B          FOR lloop=1 TO 12
- 0F2B            IF playS(yloop,lloop)<0 THEN  \playS(yloop,lloop):=0 \
-                  ENDIF 
- 0F4D            IF playS(yloop,lloop)>100 THEN  \playS(yloop,lloop):=100
-                     \ ENDIF 
+ 0F2B            IF playS(yloop,lloop)<0 THEN  \playS(yloop,lloop):=0 \ ENDIF 
+ 0F4D            IF playS(yloop,lloop)>100 THEN  \playS(yloop,lloop):=100 \ ENDIF 
  0F6F            playC(yloop):=playC(yloop)+playS(yloop,lloop)
  0F88          NEXT lloop
  0F93        NEXT yloop
@@ -234,10 +224,8 @@ PROCEDURE consGame
  10A4                FOR xloop=1 TO 8
  10B4                  char:=MID$(tscan(1,yloop),xloop,1)
  10C7                  IF SUBSTR(char,"*o@")>0 THEN  \tmp1:=tmp1+1 \ ENDIF
-                        
  10E6                  
  10E7                  IF SUBSTR(char,"#OQ")>0 THEN  \tmp2:=tmp2+1 \ ENDIF
-                        
  1106                  
  1107                  IF ASC(char)>96 AND ASC(char)<122 THEN 
  111C                    tmp3:=tmp3+1
@@ -264,8 +252,7 @@ PROCEDURE consGame
  1274        NEXT lloop
  127F        tcnt:=1 \glxX:=quadX*8-7 \glxY:=quadY*8-7 \(* top left
  12AF        FOR yloop=glxY TO glxY+7
- 12C7          tscan(1,tcnt):=MID$(gscan(1,yloop),glxX,8) \tcnt:=tcnt+
-                1
+ 12C7          tscan(1,tcnt):=MID$(gscan(1,yloop),glxX,8) \tcnt:=tcnt+1
  12EC        NEXT yloop
  12F7        PRINT dashes
  12FC        FOR yloop=1 TO 8
@@ -279,27 +266,22 @@ PROCEDURE consGame
  137D          IF yloop=3 THEN  \ PRINT spaces; fscan(3) \ ENDIF 
  1396          IF yloop=4 THEN  \ PRINT  \ ENDIF 
  13A6          IF yloop=5 THEN 
- 13B2            PRINT USING "3(s8<,i4>),s1>",playR(1),playS(me,1),playR
-                  (2),playS(me,2),playR(3),playS(me,3),"%"
+ 13B2            PRINT USING "3(s8<,i4>),s1>",playR(1),playS(me,1),playR(2),playS(me,2),playR(3),playS(me,3),"%"
  13F6          ENDIF 
  13F8          IF yloop=6 THEN 
- 1404            PRINT USING "3(s8<,i4>),s1>",playR(4),playS(me,4),playR
-                  (5),playS(me,5),playR(6),playS(me,6),"%"
+ 1404            PRINT USING "3(s8<,i4>),s1>",playR(4),playS(me,4),playR(5),playS(me,5),playR(6),playS(me,6),"%"
  1448          ENDIF 
  144A          IF yloop=7 THEN 
- 1456            PRINT USING "3(s8<,i4>),s1>",playR(7),playS(me,7),playR
-                  (8),playS(me,8),playR(9),playS(me,9),"%"
+ 1456            PRINT USING "3(s8<,i4>),s1>",playR(7),playS(me,7),playR(8),playS(me,8),playR(9),playS(me,9),"%"
  149A          ENDIF 
  149C          IF yloop=8 THEN 
- 14A8            PRINT USING "3(s8<,i4>),s1>",playR(10),playS(me,10),playR
-                  (11),playS(me,11),playR(12),playS(me,12),"%"
+ 14A8            PRINT USING "3(s8<,i4>),s1>",playR(10),playS(me,10),playR(11),playS(me,11),playR(12),playS(me,12),"%"
  14EC          ENDIF 
  14EE        NEXT yloop
  14F9        PRINT dashes
  14FE        glxX:=playX(me) \glxY:=playY(me)
  1516        PRINT  \ PRINT "Next Screen: "; 
- 152A        PRINT " 1)Engine  2)Effector  3)Intel  4)Damage  5)Debug"
-              ; 
+ 152A        PRINT " 1)Engine  2)Effector  3)Intel  4)Damage  5)Debug"; 
  1560        INPUT cmd \cmd:=MOD(cmd,6)
  1570        IF cmd=0 THEN 1050
  157F 1060   ON cmd GOSUB 2000,2100,2200,2300,2400
@@ -359,12 +341,9 @@ PROCEDURE consGame
  195A      IF cmd=23 THEN 
  1966        glxY:=playY(token) \glxX:=playX(token) \ GOSUB 9100
  1982        testx:=glxX \testy:=glxY \ GOSUB 9008
- 1998        tmp:=ASC(MID$(gscan(2,playY(token)),playX(token),1)) \rint
-              (1):=INT(tmp/100)
- 19C2        tmp:=tmp-rint(1)*100 \rint(2):=INT(tmp/10) \rint(3):=tmp-
-              rint(2)*10
- 19F7        PRINT "Recoverable matl:    1) M/AM="; tint(1); "    2) Atom="
-              ; tint(2); "    3) Chem="; tint(3)
+ 1998        tmp:=ASC(MID$(gscan(2,playY(token)),playX(token),1)) \rint(1):=INT(tmp/100)
+ 19C2        tmp:=tmp-rint(1)*100 \rint(2):=INT(tmp/10) \rint(3):=tmp-int(2)*10
+ 19F7        PRINT "Recoverable matl:    1) M/AM="; tint(1); "    2) Atom="; tint(2); "    3) Chem="; tint(3)
  1A48        INPUT "   Select one:",tmp
  1A5E        tmp:=MOD(tmp,4) \ IF tmp=0 THEN  \ RETURN  \ ENDIF 
  1A79        tmp0:=6 \ IF tmp1=1 THEN  \tmp0:=3 \ ENDIF 
@@ -374,24 +353,18 @@ PROCEDURE consGame
  1AEA          ENDIF 
  1AEC        NEXT mloop
  1AF7        tmp:=tint(1)*100+tint(2)*10+tint(3)
- 1B13        glvl:=2 \char:=CHR$(tmp) \testx:=glxX \testy:=glxY \ GOSUB
-              9000
+ 1B13        glvl:=2 \char:=CHR$(tmp) \testx:=glxX \testy:=glxY \ GOSUB9000
  1B39        tmp:=rint(1)*100+rint(2)*10+rint(3)
- 1B55        glvl:=2 \char:=CHR$(tmp) \testx:=playX(token) \testy:=playY
-              (token) \ GOSUB 9000
+ 1B55        glvl:=2 \char:=CHR$(tmp) \testx:=playX(token) \testy:=playY(token) \ GOSUB 9000
  1B7F        (* ENDIF 
- 1B88        glvl:=1 \testx:=playX(token) \texty:=playY(token) \ GOSUB
-              9000
+ 1B88        glvl:=1 \testx:=playX(token) \texty:=playY(token) \ GOSUB9000
  1BAA        testx:=playX(token) \testy:=playY(token) \ GOSUB 9008
- 1BC4        PRINT "   Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="
-              ; tint(3) \ PRINT 
+ 1BC4        PRINT "   Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3) \ PRINT 
  1BFA      ENDIF 
  1BFC      RETURN 
  1BFE 2200 PRINT "  Intel:"
  1C0D      teststr:="on " \ IF flags(1)=TRUE THEN  \teststr:="off" \ ENDIF
-            
- 1C30      PRINT " 1) Qprobe  2) Qscan  3) Scores  4) Legend"; teststr
-            ; 
+ 1C30      PRINT " 1) Qprobe  2) Qscan  3) Scores  4) Legend"; teststr; 
  1C63      INPUT " ",cmd
  1C6C      cmd:=MOD(cmd,5)+30
  1C7A      IF cmd=30 THEN  \ RETURN  \ ENDIF 
@@ -405,7 +378,6 @@ PROCEDURE consGame
  1CFA        RETURN 
  1CFC      ENDIF 
  1CFE      IF scanx=quadX OR scany=quadY THEN  \flags(4):=FALSE \ ENDIF
-            
  1D1E      testx:=glxX \testy:=glxY \ GOSUB 9007
  1D34      tmp1:=me \scanx:=quadX \scany:=quadY
  1D4C      tcnt:=1 \glxX:=quadX*8-7 \glxY:=quadY*8-7
@@ -494,12 +466,10 @@ PROCEDURE consGame
  2216      RETURN 
  2218 2220 (* player scores
  222B      FOR lloop=1 TO 8
- 223B        PRINT "----- "; playN(lloop); "  Tribe: "; tribeN(ABS(playI
-              (lloop)))
+ 223B        PRINT "----- "; playN(lloop); "  Tribe: "; tribeN(ABS(playI(lloop)))
  2263        PRINT "  Vessel: "; playC(lloop); "  Cargo:  "; 
  2286        PRINT ASC(MID$(gscan(2,playY(lloop)),playX(lloop),1)); 
- 229E        PRINT USING "2(s8<,i4>),s1>",playR(1),playS(lloop,1),playR
-              (2),playS(lloop,2); "%"
+ 229E        PRINT USING "2(s8<,i4>),s1>",playR(1),playS(lloop,1),playR(2),playS(lloop,2); "%"
  22D3        PRINT 
  22D5      NEXT lloop
  22E0      INPUT a$
@@ -523,11 +493,9 @@ PROCEDURE consGame
  23D1        NEXT mloop
  23DC      ELSE 
  23E0        IF token=me THEN 
- 23ED          PRINT " Matl in stock: MAM:"; playM(me,1); " Atm:"; playM
-                (me,2); " Chm:"; playM(me,3)
+ 23ED          PRINT " Matl in stock: MAM:"; playM(me,1); " Atm:"; playM(me,2); " Chm:"; playM(me,3)
  2430          testx:=playX(me) \testy:=playY(me) \ GOSUB 9008
- 244A          PRINT " Cargo in hold:   MAM:"; tint(1); " Atm:"; tint(
-                2); " Chm:"; tint(3)
+ 244A          PRINT " Cargo in hold:   MAM:"; tint(1); " Atm:"; tint(2); " Chm:"; tint(3)
  2486          PRINT "Divide 100 units time between 6 repair tasks:"
  24B7          RESTORE 9992
  24BC          FOR mloop=1 TO 3
@@ -537,10 +505,8 @@ PROCEDURE consGame
  250C            IF flags(6)=FALSE THEN  \ INPUT rint(mloop) \ ENDIF 
  2524            tmp0:=tint(1)+tint(2)+tint(3)
  253A            tmp1:=rint(1)+rint(2)+rint(3)
- 2550            IF tmp0>99 THEN  \tint(mloop):=tint(mloop)-(tmp0-100)
-                     \flags(5):=TRUE \ GOTO 2305 \ ENDIF 
- 2581            IF tmp1>99 THEN  \rint(mloop):=rint(mloop)-(tmp1-100)
-                     \flags(6):=TRUE \ GOTO 2305 \ ENDIF 
+ 2550            IF tmp0>99 THEN  \tint(mloop):=tint(mloop)-(tmp0-100)\flags(5):=TRUE \ GOTO 2305 \ ENDIF 
+ 2581            IF tmp1>99 THEN  \rint(mloop):=rint(mloop)-(tmp1-100)\flags(6):=TRUE \ GOTO 2305 \ ENDIF 
  25B2          NEXT mloop
  25BD        ELSE  \(* AI damage control
  25D5          FOR lloop=1 TO 3
@@ -566,8 +532,7 @@ PROCEDURE consGame
  2742              IF playS(me,xloop+yloop)<100 THEN 
  2758                (* DC speed
  2763                playS(me,xloop+yloop):=playS(me,xloop+yloop)+3
- 2783                tint(xloop):=tint(xloop)-1 \rint(xloop):=rint(xloop
-                      )+1
+ 2783                tint(xloop):=tint(xloop)-1 \rint(xloop):=rint(xloop)+1
  27A7                IF MOD(mloop,4)=1 THEN  \(* use matl at 1/4 rate
  27CD                  playM(token,xloop):=playM(token,xloop)-1
  27E5                ENDIF 
@@ -575,8 +540,7 @@ PROCEDURE consGame
  27E9            NEXT yloop
  27F4          ENDIF 
  27F6          IF rint(xloop)>0 THEN 
- 2805            sint(xloop):=sint(xloop)-1 \pint(xloop):=pint(xloop)+
-                  1
+ 2805            sint(xloop):=sint(xloop)-1 \pint(xloop):=pint(xloop)+1
  2829          ENDIF 
  282B        NEXT xloop
  2836      NEXT mloop
@@ -593,10 +557,8 @@ PROCEDURE consGame
  2903      
  2904 2400 PRINT " Debug Page:"
  2917      teststr:="on " \ IF flags(2)=TRUE THEN  \teststr:="off" \ ENDIF
-            
  293A      
- 293B      teststr2:="More" \ IF flags(3)=TRUE THEN  \teststr2:="Less"
-               \ ENDIF 
+ 293B      teststr2:="More" \ IF flags(3)=TRUE THEN  \teststr2:="Less" \ ENDIF 
  2960      flags(4):=FALSE
  2969      PRINT " 1) "; teststr2; " info  2) Jump X,Y   3) Dump Galaxy   4) Dump Players  "
  29AF      PRINT " 5) Spy "; teststr; "   6) Quit    "; 
@@ -677,8 +639,7 @@ PROCEDURE consGame
  2D73          IF MOD(yloop,16)=0 THEN 
  2D82            PRINT sysname
  2D87          ELSE 
- 2D8B            PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN
-                  (4),playN(5),playN(6),playN(7),playN(8)
+ 2D8B            PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN(4),playN(5),playN(6),playN(7),playN(8)
  2DC6            IF flags(3)=TRUE THEN 
  2DD3              PRINT "M/am - Atomic - Chemical  1) C  2) A  3) C+A  4) M  5) M+C  6) M+A  7) all"
  2E21            ENDIF 
@@ -690,8 +651,7 @@ PROCEDURE consGame
  2E52      RETURN 
  2E54 2440 (* dump player status
  2E6C      FOR lloop:=1 TO 8
- 2E7C        PRINT "----- "; playN(lloop); " at "; playX(lloop); ","; playY
-              (lloop); "  Tribe: "; tribeN(ABS(playI(lloop))); 
+ 2E7C        PRINT "----- "; playN(lloop); " at "; playX(lloop); ","; playY(lloop); "  Tribe: "; tribeN(ABS(playI(lloop))); 
  2EBE        PRINT "  Plan: "; planN(MOD(playP(lloop),10)); 
  2ED8        IF playP(lloop)=2 OR playP(lloop)=3 THEN 
  2EF1          PRINT " "; playN(target(lloop))
@@ -699,22 +659,16 @@ PROCEDURE consGame
  2F04          PRINT 
  2F06        ENDIF 
  2F08        testx:=playX(lloop) \testy:=playY(lloop) \ GOSUB 9008
- 2F22        PRINT spaces; "  Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="
-              ; tint(3); 
- 2F5A        PRINT " Stores: MAM:"; playM(lloop,1); " Atm:"; playM(lloop
-              ,2); " Chm:"; playM(lloop,3)
+ 2F22        PRINT spaces; "  Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3); 
+ 2F5A        PRINT " Stores: MAM:"; playM(lloop,1); " Atm:"; playM(lloop,2); " Chm:"; playM(lloop,3)
  2F96        PRINT spaces; 
- 2F9C        PRINT USING "3(s8<,i4>),s1>",playR(1),playS(lloop,1),playR
-              (2),playS(lloop,2),playR(3),playS(lloop,3),"%"
+ 2F9C        PRINT USING "3(s8<,i4>),s1>",playR(1),playS(lloop,1),playR(2),playS(lloop,2),playR(3),playS(lloop,3),"%"
  2FE0        PRINT spaces; 
- 2FE6        PRINT USING "3(s8<,i4>),s1>",playR(4),playS(lloop,4),playR
-              (5),playS(lloop,5),playR(6),playS(lloop,6),"%"
+ 2FE6        PRINT USING "3(s8<,i4>),s1>",playR(4),playS(lloop,4),playR(5),playS(lloop,5),playR(6),playS(lloop,6),"%"
  302A        PRINT spaces; 
- 3030        PRINT USING "3(s8<,i4>),s1>",playR(7),playS(lloop,7),playR
-              (8),playS(lloop,8),playR(9),playS(lloop,9),"%"
+ 3030        PRINT USING "3(s8<,i4>),s1>",playR(7),playS(lloop,7),playR(8),playS(lloop,8),playR(9),playS(lloop,9),"%"
  3074        PRINT spaces; 
- 307A        PRINT USING "3(s8<,i4>),s1>",playR(10),playS(lloop,10),playR
-              (11),playS(lloop,11),playR(12),playS(lloop,12),"%"
+ 307A        PRINT USING "3(s8<,i4>),s1>",playR(10),playS(lloop,10),playR(11),playS(lloop,11),playR(12),playS(lloop,12),"%"
  30BE        IF lloop=4 OR lloop=8 THEN  \ INPUT "next ?",a$ \ ENDIF 
  30E1      NEXT lloop
  30EC      RETURN 
@@ -736,11 +690,9 @@ PROCEDURE consGame
  31C2 2510 (* turn: recharge or drain storage
  31E7      FOR xloop:=1 TO 3
  31F7        IF playS(play,xloop)>0 THEN 
- 3209          playS(play,xloop+3):=playS(play,xloop+3)+playS(play,xloop
-                )/20 \(* charge
+ 3209          playS(play,xloop+3):=playS(play,xloop+3)+playS(play,xloop)/20 \(* charge
  323A        ELSE 
- 323E          playS(play,xloop+3):=playS(play,xloop+3)-playS(play,xloop
-                +3)/20
+ 323E          playS(play,xloop+3):=playS(play,xloop+3)-playS(play,xloop+3)/20
  3269        ENDIF 
  326B      NEXT xloop
  3276      RETURN 
@@ -748,8 +700,7 @@ PROCEDURE consGame
  32AA      IF targ0>6 THEN 
  32B6        tmp:=3
  32BD        IF targ0>9 THEN  \tmp:=6 \ ENDIF 
- 32D2        playS(play,targ0-tmp):=playS(play,targ0-tmp)-dist0/20 \(*
-              drain power store
+ 32D2        playS(play,targ0-tmp):=playS(play,targ0-tmp)-dist0/20 \(*drain power store
  330D      ENDIF 
  330F      playS(play,targ0):=playS(play,targ0)-dist0/20 \(* wear on specific device
  3348      (* GOSUB 2510
@@ -813,10 +764,8 @@ PROCEDURE consGame
  370B        (* fall into 3010
  371C 3010   (* resolve plan
  372E        tcnt:=range(token)
- 3739        prnstr=LEFT$(tribeN(ABS(playI(token))),2)+":"+playN(token
-              )+"  "+STR$(range(token))+" to"
- 3769        prnstr:=prnstr+LEFT$(tribeN(ABS(playI(target(token)))),2)
-              +":"+playN(target(token))+" "
+ 3739        prnstr=LEFT$(tribeN(ABS(playI(token))),2)+":"+playN(token)+"  "+STR$(range(token))+" to"
+ 3769        prnstr:=prnstr+LEFT$(tribeN(ABS(playI(target(token)))),2)+":"+playN(target(token))+" "
  3794        IF tcnt<16 THEN  \(* set chse dist 
  37B1          IF tcnt<5 THEN  \(* set atk dist 
  37CD            IF playI(token)=playI(target(token)) THEN 
@@ -825,12 +774,10 @@ PROCEDURE consGame
  37FC              IF MOD(playP(token),10)=2 THEN  \(* attack
  3817                IF playP(token)>10 THEN 
  3826                  prnstr:=prnstr+"attacking."
- 383B                  tmp0:=target(token) \tmp:=8-range(target(token)
-                        )
+ 383B                  tmp0:=target(token) \tmp:=8-range(target(token))
  3857                  IF tmp<1 THEN  \tmp:=1 \ ENDIF 
  386C                  tmp1:=1 \tmp2:=12 \ GOSUB 9005
- 387E                  tmp:=5 \tmp0:=token \tmp1:=4 \tmp2:=6 \ GOSUB 9005
-                         \(* set atk wear
+ 387E                  tmp:=5 \tmp0:=token \tmp1:=4 \tmp2:=6 \ GOSUB 9005 \(* set atk wear
  38AE                  playP(token):=playP(token)-10
  38C0                  IF playP(token)<10 THEN  \playP(token):=0 \ ENDIF
                         
@@ -838,11 +785,9 @@ PROCEDURE consGame
  38DE              ENDIF 
  38E0            ENDIF 
  38E2          ELSE 
- 38E6            testx:=playX(token) \testy:=playY(token) \ GOSUB 9013
-                   \(* lift player
+ 38E6            testx:=playX(token) \testy:=playY(token) \ GOSUB 9013 \(* lift player
  390E            tmp0:=playX(token) \tmp1:=playX(target(token))
- 3927            tmp2:=playY(token) \tmp3:=playY(target(token)) \tmp4:=3
-                   \(* set chase spd
+ 3927            tmp2:=playY(token) \tmp3:=playY(target(token)) \tmp4:=3 \(* set chase spd
  3957            GOSUB 9003 \testx:=glxX \testy:=glxY \ GOSUB 9014
  3971            playX(token):=testx \playY(token):=testy \(* drop player
  3997            IF MOD(playP(token),10)=2 THEN 
@@ -854,22 +799,17 @@ PROCEDURE consGame
  39F0            ENDIF 
  39F2            IF MOD(playP(token),10)=3 THEN 
  3A04              FOR lloop=1 TO 8
- 3A14                IF lloop<>token AND playI(target(token))=playI(token
-                      ) THEN  \(* same endpoint all tribesmen
- 3A50                  testx:=playX(lloop) \testy:=playY(lloop) \ GOSUB
-                        9013 \(* lift player
+ 3A14                IF lloop<>token AND playI(target(token))=playI(token) THEN  \(* same endpoint all tribesmen
+ 3A50                  testx:=playX(lloop) \testy:=playY(lloop) \ GOSUB 9013 \(* lift player
  3A78                  tmp0:=playX(lloop) \tmp1:=playX(target(lloop))
- 3A91                  tmp2:=playY(lloop) \tmp3:=playY(target(lloop)) \tmp4
-                        :=1 \(* set chase spd
+ 3A91                  tmp2:=playY(lloop) \tmp3:=playY(target(lloop)) \tmp4:=1 \(* set chase spd
  3AC1                  GOSUB 9003 \testx:=glxX \testy:=glxY \ GOSUB 9014
  3ADB                  playX(lloop):=testx \playY(lloop):=testy \(* drop player
- 3B01                  tmp:=2 \tmp0:=lloop \tmp1:=1 \tmp2:=3 \ GOSUB 9005
-                         \(* set opp engine wear
+ 3B01                  tmp:=2 \tmp0:=lloop \tmp1:=1 \tmp2:=3 \ GOSUB 9005 \(* set opp engine wear
  3B38                ENDIF 
  3B3A              NEXT lloop
  3B45            ENDIF 
- 3B47            tmp:=2 \tmp0:=token \tmp1:=1 \tmp2:=3 \ GOSUB 9005 \(*
-                  set engine wear
+ 3B47            tmp:=2 \tmp0:=token \tmp1:=1 \tmp2:=3 \ GOSUB 9005 \(* set engine wear
  3B7A          ENDIF 
  3B7C        ENDIF 
  3B7E        IF flags(2)=TRUE THEN  \ PRINT prnstr \ ENDIF 
@@ -889,8 +829,7 @@ PROCEDURE consGame
  3C8C      (* Utility Stuffs -----------------------------------------------------
  3CD3      
  3CD4 9000 (* string concat
- 3CE7      gscan(glvl,testy):=LEFT$(gscan(glvl,testy),testx-1)+char+MID$
-            (gscan(glvl,testy),testx+1,64)
+ 3CE7      gscan(glvl,testy):=LEFT$(gscan(glvl,testy),testx-1)+char+MID$(gscan(glvl,testy),testx+1,64)
  3D1A      RETURN 
  3D1C      
  3D1D 9001 (* step right until clear
@@ -912,20 +851,16 @@ PROCEDURE consGame
  3E6D            IF LEFT$(playN(play),1)=char THEN 
  3E80              IF cmd=21 THEN (* phaser damage all warp powered systems
  3EB4                rlmt:=dist \randl:=-1 \ GOSUB 9010
- 3EC9                dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(*
-                      shield & warp
- 3EF4                PRINT " Phaser result: "; randl; "% M/AM damage to "
-                      ; playN(play); "."
+ 3EC9                dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(* shield & warp
+ 3EF4                PRINT " Phaser result: "; randl; "% M/AM damage to "; playN(play); "."
  3F2B                rlmt:=pin \randl:=0 \ GOSUB 9010
- 3F3E                dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(*
-                      shield & main
+ 3F3E                dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(* shield & main
  3F69              ENDIF 
  3F6B              IF cmd=22 THEN  \(* torpedo damage one random system
  3F9A                rlmt=12 \randl:=-1 \ GOSUB 9010
  3FAD                targ0:=randl \rlmt:=dist0 \randl:=0 \ GOSUB 9010
  3FC9                cmd0:=63 \targ:=randl \ GOSUB 2500 \(* shield & random system 1-12
- 3FFA                PRINT " Torpedo result: "; randl; "% "; playR(targ
-                      ); " damage to "; playN(play); "."
+ 3FFA                PRINT " Torpedo result: "; randl; "% "; playR(targ); " damage to "; playN(play); "."
  4038              ENDIF 
  403A            ENDIF 
  403C          NEXT play
@@ -982,8 +917,7 @@ PROCEDURE consGame
  4333          tint(xloop):=0
  433E          FOR yloop=0 TO 10 STEP 3
  4353            IF playS(lloop,xloop+yloop)<0 THEN 
- 4369              playS(lloop,xloop):=playS(lloop,xloop)-playS(lloop,
-                    xloop+yloop) \(* damage flows up
+ 4369              playS(lloop,xloop):=playS(lloop,xloop)-playS(lloop,xloop+yloop) \(* damage flows up
  439E              playS(lloop,xloop+lloop):=0
  43B0            ENDIF 
  43B2            tint(xloop):=tint(xloop)+playS(lloop,xloop+yloop)
@@ -992,10 +926,8 @@ PROCEDURE consGame
  43E5        IF cmd=32 THEN 
  43F1          PRINT 
  43F3          PRINT LEFT$(spaces,8-LEN(playN(yloop))); 
- 4404          PRINT playN(lloop); "   Reputatiom: "; ABS(playI(lloop)
-                ); 
- 4427          PRINT USING "3(s8>,i4<)","  M/AM: ",tint(1),"  Nuke: ",
-                tint(2),"  Chem: ",tint(3)
+ 4404          PRINT playN(lloop); "   Reputatiom: "; ABS(playI(lloop)); 
+ 4427          PRINT USING "3(s8>,i4<)","  M/AM: ",tint(1),"  Nuke: ",tint(2),"  Chem: ",tint(3)
  4469        ENDIF 
  446B        IF tint(3)<1 THEN  \(* player is dead
  448A        ENDIF 
@@ -1006,10 +938,8 @@ PROCEDURE consGame
  44C3      RETURN 
  44C5      
  44C6 9008 (* read resouce layer
- 44DE      tmp:=ASC(MID$(gscan(2,testy),testx,1)) \tint(1):=INT(tmp/100
-            )
- 4502      tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint
-            (2)*10
+ 44DE      tmp:=ASC(MID$(gscan(2,testy),testx,1)) \tint(1):=INT(tmp/100)
+ 4502      tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint(2)*10
  4537      RETURN 
  4539      
  453A 9009 (* write resource layer
@@ -1031,14 +961,10 @@ PROCEDURE consGame
  4614      
  4615 9011 IF flags(1)=TRUE THEN 
  4625        PRINT  \ PRINT 
- 4629        FOR lloop:=1 TO 4 \tstr(lloop):=" "+LEFT$(tribeN(ABS(playI
-                (lloop))),1)+" " \NEXT lloop
- 4662        PRINT USING "4(s9>,s4<)",playN(1),tstr(1),playN(2),tstr(2
-              ),playN(3),tstr(3),playN(4),tstr(4)
- 46A1        FOR lloop:=1 TO 4 \tstr(lloop):=" "+LEFT$(tribeN(ABS(playI
-                (lloop+4))),1)+" " \NEXT lloop
- 46DD        PRINT USING "4(s9>,s4<)",playN(5),tstr(1),playN(6),tstr(2
-              ),playN(7),tstr(3),playN(8),tstr(4)
+ 4629        FOR lloop:=1 TO 4 \tstr(lloop):=" "+LEFT$(tribeN(ABS(playI(lloop))),1)+" " \NEXT lloop
+ 4662        PRINT USING "4(s9>,s4<)",playN(1),tstr(1),playN(2),tstr(2),playN(3),tstr(3),playN(4),tstr(4)
+ 46A1        FOR lloop:=1 TO 4 \tstr(lloop):=" "+LEFT$(tribeN(ABS(playI(lloop+4))),1)+" " \NEXT lloop
+ 46DD        PRINT USING "4(s9>,s4<)",playN(5),tstr(1),playN(6),tstr(2),playN(7),tstr(3),playN(8),tstr(4)
  471C        PRINT spaces; "Tribes: "; trbname
  4730        PRINT  \ PRINT sysname
  4737      ENDIF 
@@ -1047,8 +973,7 @@ PROCEDURE consGame
  473C 9012 (* collision damage
  4752      randl:=1 \rlmt:=12 \ GOSUB 9010 \targ0:=randl
  476C      IF targ0>0 THEN 
- 4778        PRINT " Collision damage "; dist0; "% to "; MID$(playR(targ0
-              ),2,5)
+ 4778        PRINT " Collision damage "; dist0; "% to "; MID$(playR(targ0),2,5)
  47A6        PRINT 
  47A8        randl:=-1 \rlmt:=20 \ GOSUB 9010 \dist0:=randl
  47C4        cmd0:=63 \play:=token \ GOSUB 2500
@@ -1138,12 +1063,9 @@ PROCEDURE consGame
  4DF0        GOSUB 9015 \testx:=glxX \testy:=glxY \ GOSUB 9007
  4E0A        IF cmd=12 OR cmd=22 THEN 
  4E1D          IF tmpX<>quadX THEN  \glxX:=glxX-xstep \ GOTO 9105 \ ENDIF
-                
  4E3D          IF tmpY<>quadY THEN  \glxY:=glxY-ystep \ GOTO 9105 \ ENDIF
-                
  4E5D          IF MID$(gscan(1,glxY),glxX,1)<>" " THEN  \(* subwarp collision
- 4E8B            IF cmd=22 THEN  \ PRINT "Torpedo destroyed" \ GOTO 9105
-                     \ ENDIF 
+ 4E8B            IF cmd=22 THEN  \ PRINT "Torpedo destroyed" \ GOTO 9105 \ ENDIF 
  4EB2            IF cmd=12 THEN  \ GOSUB 9012 \ GOTO 9105 \ ENDIF 
  4EC8          ENDIF 
  4ECA        ENDIF 
@@ -1174,14 +1096,10 @@ PROCEDURE consGame
  5023      PRINT "You died!"
  5030      END 
  5032      
- 5033 9990 DATA "nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5"
-            ,-3,"mfalcon",-3,"tardis7",-4
- 5099 9991 DATA "  Warp: ","% Impls:","%   RCS:","  Main: ","%   APU: "
-            ,"%  Batt:"," Phasr:","%  Torp:","% Miner:","  Shld: "
-            ,"%  Envr:","% Consu:"
+ 5033 9990 DATA "nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5",-3,"mfalcon",-3,"tardis7",-4
+ 5099 9991 DATA "  Warp: ","% Impls:","%   RCS:","  Main: ","%   APU: ","%  Batt:"," Phasr:","%  Torp:","% Miner:","  Shld: ","%  Envr:","% Consu:"
  5124 9992 DATA "Antimatter (Warp, Main Pwr, Phaser, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
  5187      DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
- 51BC 9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital"
-            ,8,"Q:galactic",4,"#:bases",4
+ 51BC 9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital",8,"Q:galactic",4,"#:bases",4
  5221 9994 DATA " Books"," Toons"," Film"," Human"
  524B 9995 DATA "SRVY","ATCK","LEAD","WING","RTB","    "
