@@ -1,0 +1,194 @@
+PROCEDURE consMake
+      (* consMake26 - game creator
+      (* Trek skin -  initial
+      DIM gscan(2,64):STRING[64]
+      DIM tribeN(8),playN(8),playR(12):STRING[8]
+      DIM planN(6):STRING[4]
+      DIM sysname,filename:STRING[80]
+      DIM teststr,teststr2:STRING[16]
+      DIM char:STRING[1]
+      DIM playS(8,12),playM(8,3),playX(8),playY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
+      DIM tribeX(8),tribeY(8),target(8),leader(8),tint(3),rint(3):INTEGER
+      DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,token,rounds:INTEGER
+      DIM path:BYTE
+      DIM played(8),flags,hosted(8):BOOLEAN
+      rounds:=1 \token:=INT(RND(8)+1)
+      FOR lloop:=1 TO 8
+        played(lloop):=FALSE \hosted(lloop):=TRUE \playC(lloop):=0
+        leader(lloop):=0 \playP(lloop):=1 \target(lloop):=lloop
+      NEXT lloop
+      RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
+      RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
+      RESTORE 9993 \sysname:=" "
+      FOR lloop:=1 TO 6 \ READ teststr,syst(lloop) \sysname:=sysname+" "+teststr \NEXT lloop
+      RESTORE 9994
+      FOR lloop=1 TO 4 \ READ tribeN(lloop) \NEXT lloop
+      RESTORE 9995
+      FOR lloop=1 TO 6 \ READ planN(lloop) \NEXT lloop
+      teststr:=""
+      FOR xloop=2 TO 8 \teststr:=teststr+" "+LEFT$(playN(xloop),1) \NEXT xloop
+      LOOP 
+        PRINT "Name must be 8 char lowercase, initial can't be: "+teststr
+        INPUT "What is your name (player1)",teststr2
+        IF teststr2<>"" THEN  \playN(1):=teststr2 \ ENDIF 
+        tmp:=ASC(LEFT$(playN(1),1))
+        IF tmp<97 THEN 
+          tmp:=tmp-32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99)
+        ENDIF 
+      EXITIF SUBSTR(LEFT$(playN(1),1),teststr)=0 THEN 
+      ENDEXIT 
+        PRINT "You can't share initials with another."
+      ENDLOOP 
+      teststr:=""
+      FOR xloop=1 TO 3
+        teststr:=teststr+LEFT$(tribeN(xloop),2)
+      NEXT xloop
+      LOOP 
+        PRINT "Tribe name must start with uppercase, initial can't be: "+teststr
+        tribeN(1):=" Human" \teststr:=""
+        INPUT "What is your tribe's name (Human)",teststr2
+        IF teststr2<>"" THEN  \tribeN(1):="Human" \ ENDIF 
+        tmp:=ASC(LEFT$(playN(1),1))
+        IF tmp>90 THEN  \tmp:=tmp+32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99) \ ENDIF 
+      EXITIF SUBSTR(LEFT$(playN(1),1),teststr)=0 THEN 
+      ENDEXIT 
+        PRINT "Your tribe can't share initials with another."
+      ENDLOOP 
+      filename:="Trek.dat"
+      PRINT "What is the name of this game ("; filename; ")"; 
+      INPUT teststr
+      IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
+      ON ERROR GOTO 10
+      SHELL "del "+filename
+ 10   ON ERROR 
+      PRINT  \ PRINT "Creating Galaxy. please wait..."
+      RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
+      FOR yloop:=1 TO 8
+        playX(yloop):=0 \playY(yloop):=0
+        FOR xloop:=1 TO 12 \playS(yloop,xloop):=100 \NEXT xloop
+        FOR xloop=1 TO 3 \playM(yloop,xloop):=100 \NEXT xloop
+      NEXT yloop
+      PRINT "reticulating splines..."; 
+      FOR yloop=1 TO 64
+        gscan(1,yloop):="" \gscan(2,yloop):=""
+        FOR xloop=1 TO 64
+          gscan(1,yloop):=gscan(1,yloop)+" " \gscan(2,yloop):=gscan(2,yloop)+CHR$(0)
+        NEXT xloop
+        PRINT "."; 
+      NEXT yloop
+      FOR mloop=1 TO syst(1) \(* create galaxy
+        LOOP 
+          tmp:=MOD(mloop,3)
+          IF tmp=0 THEN  \testx:=INT(RND(63)+1) \testy:=INT(RND(63)+1) \ ENDIF 
+          IF tmp=1 THEN  \testx:=INT(RND(47)+9) \testy:=INT(RND(47)+9) \ ENDIF 
+          IF tmp=2 THEN  \testx:=INT(RND(31)+15) \testy:=INT(RND(31)+15) \ ENDIF 
+        EXITIF MID$(gscan(1,testy),testx,1)=" " THEN 
+          IF syst(2)>0 THEN  \tmp0:=0 \char:="o" \syst(2):=syst(2)-1 \tmp1:=1 \tmp2:=3
+          ELSE 
+            IF syst(3)>0 THEN  \char:="@" \syst(3):=syst(3)-1 \tmp1:=1 \tmp2:=5
+            ELSE 
+              IF syst(4)>0 THEN  \char:="O" \syst(4):=syst(4)-1 \tmp1:=4 \tmp2:=5
+              ELSE 
+                IF syst(5)>0 THEN  \char:="Q" \syst(5):=syst(5)-1 \tmp0:=2 \tmp1:=5 \tmp2:=4
+                ELSE  \char:="*" \tmp0:=1 \tmp1:=0 \tmp2:=0
+                ENDIF 
+              ENDIF 
+            ENDIF 
+          ENDIF 
+          tint(1):=0 \tint(2):=0 \tint(3):=0
+          IF tmp0>0 THEN tint(1):=RND(tmp0) \ ENDIF 
+          IF tmp1>0 THEN tint(2):=RND(tmp1) \ ENDIF 
+          IF tmp2>0 THEN tint(3):=RND(tmp2) \ ENDIF 
+          glvl:=1 \ GOSUB 9000 \ GOSUB 9009
+        ENDEXIT 
+        ENDLOOP 
+      NEXT mloop
+      FOR xloop=1 TO 4
+        GOSUB 9004
+        tint(1):=2 \tint(2):=5 \tint(3):=5 \char:=LEFT$(tribeN(xloop),1)
+        tribeX(xloop):=testx \tribeY(xloop):=testy \glvl:=1 \ GOSUB 9000 \ GOSUB 9009
+      NEXT xloop
+ 500  (* random gen local players
+      PRINT  \ PRINT "creating players..."
+      FOR lloop=1 TO 8
+        LOOP 
+          LOOP 
+            testx:=INT(RND(64)+1) \testy:=INT(RND(64)+1)
+          EXITIF testx<17 OR testx>47 AND testy<17 OR testy>47 THEN
+          ENDEXIT 
+          ENDLOOP 
+          flags:=FALSE
+          FOR mloop=1 TO 8
+            IF mloop<>lloop AND playX(mloop)<>0 THEN 
+              tmp1:=ABS(playY(mloop)-testy) \tmp0:=ABS(playX(mloop)-testx)
+              IF tmp0+tmp1<20 THEN  \flags:=TRUE \ ENDIF  \(* set player density
+            ENDIF 
+          NEXT mloop
+        EXITIF flags=FALSE THEN 
+        ENDEXIT 
+        ENDLOOP 
+        GOSUB 9001
+        char:=LEFT$(playN(lloop),1) \playX(lloop):=testx \playY(lloop):=testy
+        glvl:=1 \ GOSUB 9000
+      NEXT lloop
+ 1000 CREATE #path,filename:WRITE
+      FOR yloop=1 TO 64 \ WRITE #path,gscan(1,yloop) \NEXT yloop
+      FOR yloop=1 TO 64
+        FOR mloop=1 TO 64
+          tmp:=ASC(MID$(gscan(2,yloop),mloop,1))
+          WRITE #path,tmp
+        NEXT mloop
+      NEXT yloop
+ 1001 (* 
+      WRITE #path,token \ WRITE #path,rounds
+      FOR lloop=1 TO 8
+        WRITE #path,playN(lloop) \ WRITE #path,playX(lloop) \ WRITE #path,playY(lloop)
+        WRITE #path,playI(lloop) \ WRITE #path,playC(lloop) \ WRITE #path,playP(lloop)
+        WRITE #path,target(lloop) \ WRITE #path,leader(lloop) \ WRITE #path,played(lloop)
+        WRITE #path,hosted(lloop)
+        FOR yloop=1 TO 12 \ WRITE #path,playS(lloop,yloop) \NEXT yloop
+        FOR yloop=1 TO 3 \ WRITE #path,playM(lloop,yloop) \NEXT yloop
+        WRITE #path,tribeN(lloop) \ WRITE #path,tribeX(lloop) \ WRITE #path,tribeY(lloop)
+      NEXT lloop
+      CLOSE #path
+      PRINT filename; " saved."
+      END 
+      
+ 9000 (* string concat
+      gscan(glvl,testy):=LEFT$(gscan(glvl,testy),testx-1)+char+MID$(gscan(glvl,testy),testx+1,64)
+      RETURN 
+      
+ 9001 (* step right until clear
+      testx:=testx-1
+      LOOP 
+        testx:=testx+1
+        IF testx>64 THEN  \testx:=1 \testy:=testy+1 \ ENDIF 
+        IF testy>64 THEN  \testy:=1 \ ENDIF 
+      EXITIF MID$(gscan(1,testy),testx,1)=" " THEN 
+      ENDEXIT 
+      ENDLOOP 
+      RETURN 
+      
+ 9004 (* return empty testx,testy
+      testx:=RND(63)+1 \testy:=RND(63)+1
+      LOOP 
+      EXITIF MID$(gscan(1,testy),testx,1)=" " THEN 
+      ENDEXIT 
+        testx:=testx+1
+        IF testx>64 THEN  \testx:=1 \testy:=testy+1 \ ENDIF 
+        IF testy>64 THEN  \testy:=1 \testx:=testx+1 \ ENDIF 
+      ENDLOOP 
+      RETURN 
+      
+ 9009 (* write resource layer
+      char:=CHR$(tint(1)*100+tint(2)*10+tint(3))
+      glvl:=2 \ GOSUB 9000 \glvl:=1
+      RETURN 
+      
+ 9990 DATA "player1",4,"nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5",-3,"mfalcon",-3,"tardis7",-4
+ 9991 DATA "  Warp: ","% Impls:","%   RCS:","  Main: ","%   APU: ","%  Batt:","% Plse:","%  Torp:","% Miner:","  Shld: ","%  Envr:","% Consu:"
+ 9992 DATA "Antimatter (Warp, Main Pwr, Pulse, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
+      DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
+ 9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital",8,"Q:galactic",4,"#:bases",4
+ 9994 DATA " Books"," Toons"," Film"," Human"
+ 9995 DATA "SRVY","CHSE","LEAD","WING","RTB","    "
