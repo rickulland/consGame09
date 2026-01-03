@@ -1,6 +1,6 @@
 PROCEDURE consGame
-      (* consGame dec26 - terminal game for Basic09
-      (* Trek skin -  Save file
+      (* TerkGame jan01 - terminal game for Basic09
+      (* play debug & balance
       
       DIM gscan(2,64):STRING[64]
       DIM fscan(3):STRING[32]
@@ -12,13 +12,13 @@ PROCEDURE consGame
       DIM spaces:STRING[8]
       DIM char:STRING[1]
       DIM random(3),dist,dist0,dtmp1,dtmp2,glxX,glxY:REAL
-      DIM playS(8,12),playM(8,3):INTEGER
+      DIM playS(8,12),playM(8,3),hosted(8):INTEGER
       DIM playX(8),playY(8),tribeX(8),tribeY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
       DIM comp(8),range(8),target(8),leader(8),tint(3),rint(3),sint(3),pint(3):INTEGER
       DIM tmp,tmp0,tmp1,tmp2,tmp3,tmp4,scanx,scany,testx,testy,tmpX,tmpY:INTEGER
       DIM randl,rlmt,lloop,mloop,xloop,yloop,cmd,cmd0,pin,tcnt,rounds:INTEGER
       DIM quadX,quadY,me,play,dmax,glvl,targ,targ0,token,xstep,ystep:INTEGER
-      DIM flags(6),played(8),hosted(8):BOOLEAN
+      DIM flags(6),played(8):BOOLEAN
       DIM path:BYTE
       flags(1):=FALSE \flags(2):=TRUE \flags(3):=FALSE
       flags(4):=TRUE \flags(5):=FALSE \flags(6):=FALSE
@@ -48,6 +48,8 @@ PROCEDURE consGame
         NEXT lloop
         IF flags(2)=TRUE THEN 
           PRINT "--- end round "; rounds; " ---"; 
+          CREATE #path,"s"+STR$(rounds)+".dat":WRITE
+          GOSUB 2615
           INPUT a$
           IF flags(3)=TRUE THEN 
             GOSUB 2440
@@ -141,10 +143,10 @@ PROCEDURE consGame
         NEXT yloop
         PRINT dashes \glxX:=playX(me) \glxY:=playY(me)
         PRINT  \ PRINT "Next Screen: "; 
-        PRINT " 1)Engine  2)Effector  3)Intel  4)Damage  5)Debug"; 
+        PRINT " 1)Engine  2)Effector  3)Intel  4)Damage  5)Settings"; 
         INPUT cmd \cmd:=MOD(cmd,6)
         IF cmd=0 THEN 1050
- 1060   ON cmd GOSUB 2000,2100,2200,2300,2400
+ 1060   ON cmd GOSUB 2000,2100,2200,2300,2600
         IF flags(4)=FALSE THEN  \flags(4):=TRUE \ GOTO 1060 \ ENDIF
  1070 ENDLOOP 
       
@@ -175,7 +177,7 @@ PROCEDURE consGame
       tmpX:=quadX \tmpY:=quadY
       INPUT " 1) Pulse   2) Torpedo   3) Miner ",cmd
       cmd:=MOD(cmd,4)+20
-      IF cmd=20 THEN  \ RETURN  \ ENDIF 
+      IF cmd=20 THEN  \flags(4):=FALSE \ RETURN  \ ENDIF 
       IF cmd=21 THEN  \(* Pulse - range around endpoint
         glxX:=playX(target(token)) \glxY:=playY(target(token))
         GOSUB 9100
@@ -268,7 +270,6 @@ PROCEDURE consGame
           ENDIF 
         NEXT xloop
       NEXT yloop
-      
       tcnt:=1
       FOR lloop=1 TO 8
         comp(lloop):=0
@@ -398,120 +399,11 @@ PROCEDURE consGame
         IF tmp0>100 OR tmp1>100 THEN  \flags(5):=TRUE \ ENDIF 
       NEXT yloop
       RETURN 
- 2400 PRINT " Debug Page:"
-      teststr:="on " \ IF flags(2)=TRUE THEN  \teststr:="off" \ ENDIF
-      teststr2:="More" \ IF flags(3)=TRUE THEN  \teststr2:="Less" \ ENDIF 
-      flags(4):=FALSE
-      PRINT " 1) "; teststr2; " info  2) Jump X,Y   3) Dump Galaxy   4) Dump Players  "
-      PRINT " 5) Spy "; teststr; "   6) Quit    "; 
-      INPUT cmd
-      cmd:=MOD(cmd,7)+50
-      IF cmd=50 THEN  \ RETURN  \ ENDIF 
-      ON cmd-50 GOSUB 2410,2420,2430,2440,2450,2460
+ 2400 (* debug call RSN
+ 2440 (* 
       RETURN 
- 2410 (* info flag
-      IF flags(3)=TRUE THEN  \flags(3):=FALSE
-      ELSE  \flags(3):=TRUE
-      ENDIF 
-      flags(4):=FALSE
-      RETURN 
- 2420 (* jump to x,y
-      FOR lloop:=0 TO 4 STEP 4
-        FOR xloop=1 TO 4
-          PRINT "    "; lloop+xloop; " "; playN(lloop+xloop); 
-        NEXT xloop
-        PRINT 
-      NEXT lloop
-      INPUT " Player number? ",tmp1
-      testx:=playX(tmp1) \testy:=playY(tmp1)
-      char:=" " \glvl:=1 \ GOSUB 9000
-      INPUT "Sector X: ",glxX \ INPUT "Sector Y: ",glxY
-      testx:=glxX \testy:=glxY \ GOSUB 9001
-      glxX:=testx \glxY:=testy
-      playX(tmp1):=glxX \playY(tmp1):=glxY
-      testx:=playX(tmp1) \testy:=playY(tmp1)
-      char:=LEFT$(playN(tmp1),1) \ GOSUB 9001 \ GOSUB 9007
-      RETURN 
-      
- 2430 PRINT "Dump galaxy:"
-      FOR yloop=1 TO 64
-        IF yloop<10 THEN  \ PRINT " ";  \ ENDIF 
-        PRINT yloop; " "; 
-        FOR xloop=1 TO 57 STEP 8
-          PRINT MID$(gscan(1,yloop),xloop,8); "|"; 
-        NEXT xloop
-        PRINT 
-        IF flags(3)=TRUE THEN 
-          PRINT "   "; 
-          FOR xloop=1 TO 57 STEP 8
-            FOR lloop=0 TO 7
-              testx:=lloop+xloop \testy:=yloop \ GOSUB 9008
-              IF tint(1)>0 THEN 
-                tmp:=4
-                IF tint(2)>0 THEN  \tmp:=6
-                ELSE 
-                  IF tint(3)>0 THEN  \tmp:=5 \ ENDIF 
-                ENDIF 
-                IF tint(2)>0 AND tint(3)>0 THEN  \tmp:=7 \ ENDIF 
-              ELSE 
-                IF tint(2)>0 THEN  \tmp:=2
-                  IF tint(3)>0 THEN  \tmp:=3 \ ENDIF 
-                ELSE 
-                  IF tint(3)>0 THEN  \tmp:=1 \ ENDIF 
-                ENDIF 
-              ENDIF 
-              IF tmp>0 THEN  \char:=STR$(tmp) \ ELSE  \char:=":" \ ENDIF 
-              PRINT char; 
-            NEXT lloop
-            PRINT ":"; 
-          NEXT xloop
-        ENDIF 
-        PRINT 
-        IF MOD(yloop,8)=0 THEN 
-          IF MOD(yloop,16)=0 THEN 
-            PRINT sysname
-          ELSE 
-            PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN(4),playN(5),playN(6),playN(7),playN(8)
-            IF flags(3)=TRUE THEN 
-              PRINT "M/am - Atomic - Chemical  1) C  2) A  3) C+A  4) M  5) M+C  6) M+A  7) all"
-            ENDIF 
-          ENDIF 
-          INPUT "q=quit ",a$
-          IF a$="q" THEN  \ RETURN  \ ENDIF 
-        ENDIF 
-      NEXT yloop
-      RETURN 
- 2440 (* dump player status
-      FOR lloop:=1 TO 8
-        PRINT "----- "; playN(lloop); " at "; playX(lloop); ","; playY(lloop); "  Tribe: "; tribeN(ABS(playI(lloop))); 
-        PRINT "  Plan: "; planN(playP(lloop)); 
-        IF playP(lloop)=2 OR playP(lloop)=3 THEN  \ PRINT " "; playN(target(lloop))
-        ELSE  \ PRINT 
-        ENDIF 
-        testx:=playX(lloop) \testy:=playY(lloop) \ GOSUB 9008
-        PRINT spaces; "  Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3); 
-        PRINT " Stores: MAM:"; playM(lloop,1); " Atm:"; playM(lloop,2); " Chm:"; playM(lloop,3)
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(1),playS(lloop,1),playR(2),playS(lloop,2),playR(3),playS(lloop,3),"%"
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(4),playS(lloop,4),playR(5),playS(lloop,5),playR(6),playS(lloop,6),"%"
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(7),playS(lloop,7),playR(8),playS(lloop,8),playR(9),playS(lloop,9),"%"
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(10),playS(lloop,10),playR(11),playS(lloop,11),playR(12),playS(lloop,12),"%"
-        IF lloop=4 OR lloop=8 THEN  \ INPUT "next ?",a$ \ ENDIF 
-      NEXT lloop
-      RETURN 
- 2450 (* all players?
-      IF flags(2)=TRUE THEN  \flags(2):=FALSE
-      ELSE  \flags(2):=TRUE
-      ENDIF 
-      flags(4):=FALSE
-      RETURN 
- 2460 STOP 
-      
  2500 (* systems damage/wear  in: play, cmd0, targ0, dist0
-      (* dist0:=INT(64-dist) \(* invert FIXME
+      dist0:=INT(dist/64)
       cmd0:=MOD(cmd0,4)+60
       IF cmd0=60 THEN  \ RETURN  \ ENDIF 
       ON cmd0-60 GOSUB 2510,2520,2530
@@ -542,43 +434,48 @@ PROCEDURE consGame
       playS(play,targ0):=playS(play,targ0)-dist0
       RETURN 
  2600 (* system settings
-      cmd0:=MOD(cmd0,4)+70
-      IF cmd0=70 THEN  \ RETURN  \ ENDIF 
+      PRINT " 1)Save  2)Load  3)Leave  4) Network"; 
+      INPUT cmd0 \cmd0:=MOD(cmd0,4)+70
       ON cmd0-70 GOSUB 2610,2620,2630,2640
       RETURN 
  2610 (* save game
-      filename:="Trek.dat"
+      filename:="Terk"
       PRINT "What is the name of this game ("; filename; ")"; 
       INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
-      PRINT  \ PRINT "Preserving Galaxy. please wait..."
+      filename:=filename+".dat"
+      ON ERROR GOTO 2611
       SHELL "del "+filename
+ 2611 ON ERROR 
+      PRINT  \ PRINT "Preserving Galaxy. please wait..."
       CREATE #path,filename:WRITE
-      FOR yloop=1 TO 64 \ WRITE #path,gscan(lloop,yloop) \NEXT yloop
+      FOR yloop=1 TO 64 \ WRITE #path,gscan(1,yloop) \NEXT yloop
       FOR yloop=1 TO 64
         FOR mloop=1 TO 64
           tmp:=ASC(MID$(gscan(2,yloop),mloop,1))
           WRITE #path,tmp
         NEXT mloop
       NEXT yloop
+ 2615 (* short save entry point
       WRITE #path,token \ WRITE #path,rounds
       FOR lloop=1 TO 8
         WRITE #path,playN(lloop) \ WRITE #path,playX(lloop) \ WRITE #path,playY(lloop)
         WRITE #path,playI(lloop) \ WRITE #path,playC(lloop) \ WRITE #path,playP(lloop)
         WRITE #path,target(lloop) \ WRITE #path,leader(lloop) \ WRITE #path,played(lloop)
         WRITE #path,hosted(lloop)
+        WRITE #path,tribeN(lloop) \ WRITE #path,tribeX(lloop) \ WRITE #path,tribeY(lloop)
         FOR yloop=1 TO 12 \ WRITE #path,playS(lloop,yloop) \NEXT yloop
         FOR yloop=1 TO 3 \ WRITE #path,playM(lloop,yloop) \NEXT yloop
-        WRITE #path,tribeN(lloop) \ WRITE #path,tribeX(lloop) \ WRITE #path,tribeY(lloop)
       NEXT lloop
       CLOSE #path
-      PRINT filename; " saved."
+      PRINT " File saved."
       RETURN 
  2620 (* Load/reload game
-      filename:="Trek.dat"
+      filename:="Terk"
       PRINT "Game file to load ("; filename; ")"; 
       INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
+      filename:=filename+".dat"
       PRINT  \ PRINT "Loading Game. please wait..."
       OPEN #path,filename:READ
       FOR yloop=1 TO 64 \ READ #path,gscan(1,yloop) \NEXT yloop
@@ -595,13 +492,13 @@ PROCEDURE consGame
         READ #path,playI(lloop) \ READ #path,playC(lloop) \ READ #path,playP(lloop)
         READ #path,target(lloop) \ READ #path,leader(lloop) \ READ #path,played(lloop)
         READ #path,hosted(lloop)
+        READ #path,tribeN(lloop) \ READ #path,tribeX(lloop) \ READ #path,tribeY(lloop)
         FOR yloop=1 TO 12 \ READ #path,playS(lloop,yloop) \NEXT yloop
         FOR yloop=1 TO 3 \ READ #path,playM(lloop,yloop) \NEXT yloop
-        READ #path,tribeN(lloop) \ READ #path,tribeX(lloop) \ READ #path,tribeY(lloop)
       NEXT lloop
       CLOSE #path
       RETURN 
- 2630 (* Join game
+ 2630 (* Leave game
       RETURN 
  2640 (* Network Settings
       RETURN 
@@ -611,6 +508,9 @@ PROCEDURE consGame
       prnstr:=LEFT$(tribeN(ABS(playI(token))),2)+":"+playN(token)+" "
       FOR mloop=1 TO 3 \(* run DC
         IF playS(token,mloop)<75 THEN  \(* set DC lmt
+          IF flags(2)=TRUE THEN 
+            PRINT playN(token); " runs DC: "
+          ENDIF 
           tint(mloop):=playM(token,mloop)
           IF tint(mloop)>14 THEN  \(* set repair matl thold
             FOR lloop=mloop TO mloop+9 STEP 3
@@ -622,9 +522,10 @@ PROCEDURE consGame
                 flags(6):=TRUE
               ENDIF 
               IF flags(2)=TRUE THEN 
-                PRINT "DC***: "; MID$(playR(lloop),3,5); "+"; tmp0; " "; 
+                PRINT MID$(playR(lloop),3,5); "+"; tmp0; " "; 
               ENDIF 
             NEXT lloop
+            IF flags(2)=TRUE THEN  \ PRINT  \ ENDIF 
           ENDIF 
           IF playM(token,mloop)<40 THEN  \(* set RTB limit
             playP(token):=5
@@ -747,7 +648,6 @@ PROCEDURE consGame
  9000 (* string concat
       gscan(glvl,testy):=LEFT$(gscan(glvl,testy),testx-1)+char+MID$(gscan(glvl,testy),testx+1,64)
       RETURN 
-      
  9001 (* step right until clear
       testx:=testx-1
       LOOP 
@@ -758,7 +658,6 @@ PROCEDURE consGame
       ENDEXIT 
       ENDLOOP 
       RETURN 
-      
  9002 (* damage to players
       char:=MID$(gscan(1,glxY),glxX-1,3)
       IF char<>LEFT$(playN(token),1) THEN 
@@ -792,7 +691,6 @@ PROCEDURE consGame
         ENDIF 
       ENDIF 
       RETURN 
-      
  9003 (* chase target: tmp0,1=play,targetX tmp2,3=and Y tmp4=step
       IF tmp0<tmp1 AND tmp0+tmp4<tmp1 THEN  \tmp0:=tmp0+tmp4 \ ENDIF
       IF tmp0>tmp1 AND tmp0-tmp4<tmp1 THEN  \tmp0:=tmp0-tmp4 \ ENDIF
@@ -801,7 +699,6 @@ PROCEDURE consGame
       glxX:=tmp0 \glxY:=tmp2 \ GOSUB 9015
       testx:=glxX \testy:=glxY \ GOSUB 9001
       RETURN 
-      
  9004 (* return empty testx,testy
       testx:=RND(63)+1 \testy:=RND(63)+1
       LOOP 
@@ -812,7 +709,6 @@ PROCEDURE consGame
         IF testy>64 THEN  \testy:=1 \testx:=testx+1 \ ENDIF 
       ENDLOOP 
       RETURN 
-      
  9005 (* return damage 
       FOR mloop=tmp1 TO tmp2
         randl:=2 \ GOSUB 9010
@@ -822,7 +718,6 @@ PROCEDURE consGame
         ENDIF 
       NEXT mloop
       RETURN 
-      
  9006 (* player scores
       FOR lloop=1 TO 8
         FOR xloop:=1 TO 3
@@ -845,20 +740,16 @@ PROCEDURE consGame
         ENDIF 
       NEXT lloop
       RETURN 
-      
  9007 quadX:=INT((testx-1)/8+1) \quadY:=INT((testy-1)/8+1)
       RETURN 
-      
  9008 (* read resouce layer
       tmp:=ASC(MID$(gscan(2,testy),testx,1)) \tint(1):=INT(tmp/100)
       tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint(2)*10
       RETURN 
-      
  9009 (* write resource layer
       char:=CHR$(tint(1)*100+tint(2)*10+tint(3))
       glvl:=2 \ GOSUB 9000 \glvl:=1
       RETURN 
-      
  9010 (* convert random to randl with rlmt=limit 
       randl:=randl-1
       IF randl<0 THEN  \randl:=INT(MOD(random(3),rlmt)) \ ENDIF 
@@ -866,7 +757,6 @@ PROCEDURE consGame
       ELSE  \randl:=INT(MOD(random(1),rlmt))
       ENDIF 
       RETURN 
-      
  9011 IF flags(1)=TRUE THEN 
         PRINT  \ PRINT 
         FOR lloop:=1 TO 4 \tstr(lloop):=" "+LEFT$(tribeN(ABS(playI(lloop))),1)+" " \NEXT lloop
@@ -877,7 +767,6 @@ PROCEDURE consGame
         PRINT  \ PRINT sysname
       ENDIF 
       RETURN 
-      
  9012 (* collision damage
       randl:=1 \rlmt:=12 \ GOSUB 9010 \targ0:=randl
       IF targ0>0 THEN 
@@ -886,7 +775,6 @@ PROCEDURE consGame
         PRINT " Collision damage "; dist0; "% to "; MID$(playR(targ0),3,5)
       ENDIF 
       RETURN 
-      
  9013 (* lift player in:testx,testy
       char:=" " \glvl:=1 \ GOSUB 9000
       GOSUB 9008
@@ -895,10 +783,8 @@ PROCEDURE consGame
       NEXT mloop
       GOSUB 9009
       RETURN 
-      
  9014 (* drop player
       GOSUB 9007
-      
       char:=LEFT$(playN(token),1) \ GOSUB 9000
       FOR mloop:=1 TO 3 \tint(mloop):=rint(mloop) \NEXT mloop
       GOSUB 9009
@@ -911,7 +797,6 @@ PROCEDURE consGame
       IF glxY>64 THEN  \glxY:=glxY-63 \glxX:=glxX+1 \ ENDIF 
       IF glxX>64 THEN glxX:=glxX-63 \ ENDIF 
       RETURN 
-      
       
  9100 (* navigation
       PRINT spaces; "   8  1  2  "
@@ -933,7 +818,7 @@ PROCEDURE consGame
         dist:=pin*5 \dmax:=64 \tmp0:=1 \tmp1:=4
       ENDIF 
       IF cmd=12 THEN 
-        dist:=pin*2 \dmax:=9 \tmp0:=2 \tmp1:=5
+        dist:=pin \dmax:=9 \tmp0:=2 \tmp1:=5
       ENDIF 
       IF cmd=21 THEN 
         dist:=pin*2 \dmax:=27 \tmp0:=5 \tmp1:=8
@@ -942,7 +827,7 @@ PROCEDURE consGame
         dist:=pin*5 \dmax:=32 \tmp0:=5 \tmp1:=8
       ENDIF 
       IF cmd=23 THEN 
-        dist:=2 \dmax:=2 \tmp0:=6 \tmp1:=9
+        dist:=1 \dmax:=2 \tmp0:=6 \tmp1:=9
       ENDIF 
       IF cmd=31 THEN 
         dist:=pin*5 \dmax:=64 \tmp0:=2 \tmp1:=8
@@ -957,6 +842,7 @@ PROCEDURE consGame
       IF dist>dmax THEN  \dist:=dmax \ ENDIF 
       ON targ GOSUB 9120,9121,9122,9123,9124,9125,9126,9127
       
+      IF cmd=23 THEN  \dist:=1 \ ENDIF 
       FOR track=1 TO dist
         tmp0:=0 \glxX:=glxX+xstep \glxY:=glxY+ystep
         GOSUB 9015 \testx:=glxX \testy:=glxY \ GOSUB 9007

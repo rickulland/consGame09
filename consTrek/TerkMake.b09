@@ -1,6 +1,6 @@
 PROCEDURE consMake
-      (* consMake26 - game creator
-      (* Trek skin -  initial
+      (* TerkMake jan01 - see TerkGame
+      (* game creator - initial
       DIM gscan(2,64):STRING[64]
       DIM tribeN(8),playN(8),playR(12):STRING[8]
       DIM planN(6):STRING[4]
@@ -8,13 +8,13 @@ PROCEDURE consMake
       DIM teststr,teststr2:STRING[16]
       DIM char:STRING[1]
       DIM playS(8,12),playM(8,3),playX(8),playY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
-      DIM tribeX(8),tribeY(8),target(8),leader(8),tint(3),rint(3):INTEGER
+      DIM tribeX(8),tribeY(8),target(8),leader(8),hosted(8),tint(3),rint(3):INTEGER
       DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,token,rounds:INTEGER
       DIM path:BYTE
-      DIM played(8),flags,hosted(8):BOOLEAN
+      DIM played(8),flags:BOOLEAN
       rounds:=1 \token:=INT(RND(8)+1)
       FOR lloop:=1 TO 8
-        played(lloop):=FALSE \hosted(lloop):=TRUE \playC(lloop):=0
+        played(lloop):=FALSE \hosted(lloop):=1 \playC(lloop):=0
         leader(lloop):=0 \playP(lloop):=1 \target(lloop):=lloop
       NEXT lloop
       RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
@@ -54,10 +54,11 @@ PROCEDURE consMake
       ENDEXIT 
         PRINT "Your tribe can't share initials with another."
       ENDLOOP 
-      filename:="Trek.dat"
+      filename:="Terk"
       PRINT "What is the name of this game ("; filename; ")"; 
       INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
+      filename:=filename+".dat"
       ON ERROR GOTO 10
       SHELL "del "+filename
  10   ON ERROR 
@@ -68,7 +69,7 @@ PROCEDURE consMake
         FOR xloop:=1 TO 12 \playS(yloop,xloop):=100 \NEXT xloop
         FOR xloop=1 TO 3 \playM(yloop,xloop):=100 \NEXT xloop
       NEXT yloop
-      PRINT "reticulating splines..."; 
+      PRINT "reticulating splines..."
       FOR yloop=1 TO 64
         gscan(1,yloop):="" \gscan(2,yloop):=""
         FOR xloop=1 TO 64
@@ -76,6 +77,7 @@ PROCEDURE consMake
         NEXT xloop
         PRINT "."; 
       NEXT yloop
+      PRINT  \ PRINT "casting orbitals..."
       FOR mloop=1 TO syst(1) \(* create galaxy
         LOOP 
           tmp:=MOD(mloop,3)
@@ -103,13 +105,13 @@ PROCEDURE consMake
         ENDEXIT 
         ENDLOOP 
       NEXT mloop
-      FOR xloop=1 TO 4
+      FOR xloop=1 TO 8
         GOSUB 9004
         tint(1):=2 \tint(2):=5 \tint(3):=5 \char:=LEFT$(tribeN(xloop),1)
         tribeX(xloop):=testx \tribeY(xloop):=testy \glvl:=1 \ GOSUB 9000 \ GOSUB 9009
       NEXT xloop
  500  (* random gen local players
-      PRINT  \ PRINT "creating players..."
+      PRINT "replicating players..."
       FOR lloop=1 TO 8
         LOOP 
           LOOP 
@@ -146,9 +148,9 @@ PROCEDURE consMake
         WRITE #path,playI(lloop) \ WRITE #path,playC(lloop) \ WRITE #path,playP(lloop)
         WRITE #path,target(lloop) \ WRITE #path,leader(lloop) \ WRITE #path,played(lloop)
         WRITE #path,hosted(lloop)
+        WRITE #path,tribeN(lloop) \ WRITE #path,tribeX(lloop) \ WRITE #path,tribeY(lloop)
         FOR yloop=1 TO 12 \ WRITE #path,playS(lloop,yloop) \NEXT yloop
         FOR yloop=1 TO 3 \ WRITE #path,playM(lloop,yloop) \NEXT yloop
-        WRITE #path,tribeN(lloop) \ WRITE #path,tribeX(lloop) \ WRITE #path,tribeY(lloop)
       NEXT lloop
       CLOSE #path
       PRINT filename; " saved."
@@ -157,7 +159,6 @@ PROCEDURE consMake
  9000 (* string concat
       gscan(glvl,testy):=LEFT$(gscan(glvl,testy),testx-1)+char+MID$(gscan(glvl,testy),testx+1,64)
       RETURN 
-      
  9001 (* step right until clear
       testx:=testx-1
       LOOP 
@@ -168,7 +169,6 @@ PROCEDURE consMake
       ENDEXIT 
       ENDLOOP 
       RETURN 
-      
  9004 (* return empty testx,testy
       testx:=RND(63)+1 \testy:=RND(63)+1
       LOOP 
@@ -179,7 +179,6 @@ PROCEDURE consMake
         IF testy>64 THEN  \testy:=1 \testx:=testx+1 \ ENDIF 
       ENDLOOP 
       RETURN 
-      
  9009 (* write resource layer
       char:=CHR$(tint(1)*100+tint(2)*10+tint(3))
       glvl:=2 \ GOSUB 9000 \glvl:=1
