@@ -1,14 +1,17 @@
 # Terk, the game
 
- Terk? Well, it's not a copyrighted game, and it can probably be 'googled'. If you are not familar with classic Trek, the Enterprise' *(you)* runs around killing things, occasionally stopping at a starbase for repairs and resupply. We've expanded on that, Terk is an 8 player game *(seven might be AI)*, with players grouped in tribes.  
+ Terk? Well, it's not a copyrighted game, and it can probably be 'googled'. 
+ 
+ If you are not familar with classic Trek, the Enterprise' *(you)* runs around killing things, occasionally stopping at a starbase for repairs and resupply. We've expanded on that, Terk is an 8 player game *(seven might be AI)*, with players grouped in tribes.  
+ 
  Play begins as individuals seek other players or raw material, building strength by effort or spoils of war. Each tribe has a base where members can be rapidly restored to health. More importantly, members can join together to attack en masse *(borg out)*. Remaining individuals won't remain for long, and the game probably concludes with 'boss battles' between Triborgs.  Last Tribe standing.
 
 Play is organized into rounds. Inside each, every player *(real or human)* is called in random order until all have played. Without knowing who's next or who's left, the only thing a body can do is take things as they come. And another thing... in turn based games, time and distance blur - warp factor 3 is both a speed and a distance covered in one turn. Shut up about the Kessel run already.
 
 Speaking of distance, space is spacious. Looking out the window shows... nothing, usually. Instead the quadrant scan places notable surroundings in grids or 'quadrants' of 8x8 sectors. Think of a cube squashed flat and stretched such that a direct route to any system charts a straight line and distance. This isn't meant to be reality, it's a targeting screen.
 
-# Display
-Terk will run on any serial text terminal. It doesn't need display codes, not even cursor position - an Apple1 could do it. The result is a scrolling display where a 'screen' is technically the last 20ish lines, about half current stats and half a command/results scroll. There are concessions, for example there is a Legend enumerating every player, tribe, and object by full name. THat can be turned off. Also, - if you wander too far from that initial summary screen command '0' will reprint it for free.
+## Display
+Terk will run on any serial text terminal. It doesn't need display codes, not even cursor position - an Apple1 could do it. The result is a scrolling display where a 'screen' is technically the last 20ish lines, about half current stats and half a command/results scroll. There are concessions, for example there is a map legend enumerating every player, tribe, and object by name. That can be turned off. And if you wander too far from that initial summary screen command '0' will reprint it for free.
 
 Following the Legend (or not) is the 'Quadrant' display, using that squash things flat charting idea. The things being squashed include big things:
    * Nude stars '*' - usually something to miss or hide behind, however some 'stars' have minable antimatter. 
@@ -76,7 +79,8 @@ The damage you'll be fixing happens to 3 major subsystems, with performance fall
    Offically, the RCS is driven electrically and keeps the top side up. The same battery drives local services like plaentary mining and local food production. Less known, the RCS **supplies** that battery and can power the ship a short while without creating any kind of energy signature. Don't ask what we are spinning.
 
 ## AI opponents 
-"If you don't think too well, don't think too much"- Tom Magliozzi
+*"If you don't think too well, don't think too much"- Tom Magliozzi*
+
 AI players suffer the same wear and repair concerns as humans. They are more predictable, generally following one of these sub-quests in order:
    1) If ship is damaged, fix it.
    2) If low on repair material head towards your base and restock(RSN)
@@ -86,9 +90,9 @@ AI players suffer the same wear and repair concerns as humans. They are more pre
    6) Cruise towards home base, looking for action
 
 ## Death
-A player can die in several ways(RSN)
+A player can (RSN) die in several ways
   1) Destroyed in combat. That's it. Everything is gone.
-  2) Disabled. The ship can no longer repair itself, but can be repaired (or stolen) by others. 
+  2) Disabled. The ship can no longer fight or repair itself, but can be repaired *(or stolen)* by others. 
   3) Wrecked.  Once the RCS spools down, she's dead, Jim. Scrap value is the minable cargo.
 
 
