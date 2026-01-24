@@ -1,0 +1,120 @@
+PROCEDURE consAdd
+      (* TerkAdd jan09 - see TerkGame
+      (* add player - initial
+      DIM sysname,filename:STRING[80]
+      DIM gscan(2,64):STRING[64]
+      DIM teststr,teststr2:STRING[16]
+      DIM tribeN(8),playN(8),playR(12):STRING[8]
+      DIM planN(6):STRING[4]
+      DIM char:STRING[1]
+      DIM playS(8,12),playM(8,3),playX(8),playY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
+      DIM tribeX(8),tribeY(8),target(8),leader(8),hosted(8),tint(3),rint(3):INTEGER
+      DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,token,rounds:INTEGER
+      DIM path:BYTE
+      DIM played(8),flag:BOOLEAN
+      flag:=FALSE
+      FOR lloop:=1 TO 8
+        played(lloop):=FALSE \hosted(lloop):=1 \playC(lloop):=0
+        leader(lloop):=0 \playP(lloop):=1 \target(lloop):=lloop
+      NEXT lloop
+      RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
+      RESTORE 9994 \ FOR lloop=1 TO 4 \ READ tribeN(lloop) \NEXT lloop
+
+      teststr:="" \ filename:="Terk"
+      FOR xloop=2 TO 8 \teststr:=teststr+" "+LEFT$(playN(xloop),1) \NEXT xloop
+      PRINT "What is the name of this game ("; filename; ")"; \ INPUT teststr
+      IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
+      OPEN #path,filename+".dat":READ
+      FOR xloop=1 TO 2
+        FOR yloop=1 TO 64
+          gscan(xloop,yloop):=""
+          FOR mloop=1 TO 64
+            READ #path,tmp \ gscan(xloop,yloop):=gscan(xloop,yloop)+CHR$(tmp)
+          NEXT mloop
+        NEXT yloop
+      NEXT xloop
+      READ #path,token \ READ #path,rounds
+      FOR lloop=1 TO 8
+        READ #path,playN(lloop) \ READ #path,playX(lloop) \ READ #path,playY(lloop)
+        READ #path,playI(lloop) \ READ #path,playC(lloop) \ READ #path,playP(lloop)
+        READ #path,target(lloop) \ READ #path,leader(lloop) \ READ #path,played(lloop)
+        READ #path,hosted(lloop)
+        READ #path,tribeN(lloop) \ READ #path,tribeX(lloop) \ READ #path,tribeY(lloop)
+
+        IF tribeN(lloop)<0 THEN \ PRINT " ";lloop;": ";
+        ELSE \ PRINT "   ";
+        ENDIF
+        PRINT playN(lloop); " Tribe:"; ABS(tribeN(lloop));"  Score:"; playC(lloop); 
+        PRINT "  Leader:"; leader(lloop); "  host by: "; hosted(lloop); 
+        FOR yloop=1 TO 3 \ READ #path,playM(lloop,yloop) \ NEXT yloop 
+        FOR yloop=1 TO 12 \ READ #path,playS(lloop,yloop) \ NEXT yloop
+      NEXT lloop
+      LOOP
+        INPUT "Select a character to assume (1-8):", token
+      EXITIF playI(token)<0 THEN
+      ENDEXIT
+      ENDLOOP
+      FOR lloop=1 TO 8 \(* is any existing member of this tribe human?
+        IF lloop<>token THEN
+          IF ABS(playI(lloop))=ABS(playI(token)) AND playI(lloop)>0 THEN
+            playI(token):=ABS(playI(lloop)) \ flag:=TRUE
+          ENDIF
+        ENDIF
+      NEXT lloop
+      LOOP 
+        PRINT "Player names must be 8 char lowercase, initial can't be: "+teststr
+        INPUT "What is your name (";playN(token);")",teststr2
+        IF teststr2<>"" THEN  \playN(token):=teststr2 \ ENDIF 
+        tmp:=ASC(LEFT$(playN(1),1))
+        IF tmp<97 THEN 
+          tmp:=tmp-32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99)
+        ENDIF 
+      EXITIF SUBSTR(LEFT$(playN(1),1),teststr)=0 THEN 
+      ENDEXIT 
+        PRINT "You can't share initials with another."
+      ENDLOOP 
+      teststr:=""
+      FOR xloop=1 TO 3
+        teststr:=teststr+LEFT$(tribeN(xloop),2)
+      NEXT xloop
+
+      LOOP 
+        PRINT " As the first human in this tribe, you may rename it."
+        PRINT "Tribe name must start with uppercase, initial can't be: "+teststr
+        teststr:=""
+        INPUT "What is your tribe's name (";tribeN(token);")",teststr2
+        IF teststr2<>"" THEN  \tribeN(token):=teststr2 \ ENDIF 
+        tmp0:=ASC(LEFT$(playN(1),1))
+        IF tmp0>90 THEN  \tmp0:=tmp0+32 \playN(1):=CHR$(tmp0)+MID$(playN(1),2,99) \ ENDIF 
+      EXITIF SUBSTR(LEFT$(playN(token),1),teststr)=0 THEN 
+      ENDEXIT 
+        PRINT "Your tribe can't share initials with another."
+      ENDLOOP 
+    
+      SEEK #path,0
+      FOR xloop=1 TO 2
+        FOR yloop=1 TO 64
+          FOR mloop=1 TO 64
+            tmp:=ASC(MID$(gscan(xloop,yloop),mloop,1))
+            WRITE #path,tmp
+          NEXT mloop
+        NEXT yloop
+      NEXT xloop
+
+      WRITE #path,token \ WRITE #path,rounds
+      FOR lloop=1 TO 8
+        WRITE #path,playN(lloop) \ WRITE #path,playX(lloop) \ WRITE #path,playY(lloop)
+        WRITE #path,playI(lloop) \ WRITE #path,playC(lloop) \ WRITE #path,playP(lloop)
+        WRITE #path,target(lloop) \ WRITE #path,leader(lloop) \ WRITE #path,played(lloop)
+        WRITE #path,hosted(lloop)
+        WRITE #path,tribeN(lloop) \ WRITE #path,tribeX(lloop) \ WRITE #path,tribeY(lloop)
+        FOR yloop=1 TO 12 \ WRITE #path,playS(lloop,yloop) \NEXT yloop
+        FOR yloop=1 TO 3 \ WRITE #path,playM(lloop,yloop) \NEXT yloop
+      NEXT lloop
+      CLOSE #path
+      PRINT filename; " saved."
+      END 
+      
+ 9990 DATA "player1",4,"nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5",-3,"mfalcon",-3,"tardis7",-4
+ 9994 DATA " Books"," Toons"," Film"," Human"
+ 9995 DATA "SRVY","CHSE","LEAD","WING","RTB","    "
