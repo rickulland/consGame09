@@ -1,6 +1,6 @@
 PROCEDURE consMake
-      (* TerkMake jan01 - see TerkGame
-      (* game creator - initial
+      (* TerkMake jan16 - see TerkGame
+      (* game creator 
       DIM gscan(2,64):STRING[64]
       DIM tribeN(8),playN(8),playR(12):STRING[8]
       DIM planN(6):STRING[4]
@@ -17,15 +17,16 @@ PROCEDURE consMake
         played(lloop):=FALSE \hosted(lloop):=1 \playC(lloop):=0
         leader(lloop):=0 \playP(lloop):=1 \target(lloop):=lloop
       NEXT lloop
-      RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
+      RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \(* NEXT lloop
+      NEXT lloop
       RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
       RESTORE 9993 \sysname:=" "
       FOR lloop:=1 TO 6 \ READ teststr,syst(lloop) \sysname:=sysname+" "+teststr \NEXT lloop
       RESTORE 9994
-      FOR lloop=1 TO 4 \ READ tribeN(lloop) \NEXT lloop
+      FOR lloop=1 TO 8 \ READ tribeN(lloop) \NEXT lloop
       RESTORE 9995
       FOR lloop=1 TO 6 \ READ planN(lloop) \NEXT lloop
-      teststr:=""
+      teststr:="" \token:=1
       FOR xloop=2 TO 8 \teststr:=teststr+" "+LEFT$(playN(xloop),1) \NEXT xloop
       LOOP 
         PRINT "Name must be 8 char lowercase, initial can't be: "+teststr
@@ -40,14 +41,16 @@ PROCEDURE consMake
         PRINT "You can't share initials with another."
       ENDLOOP 
       teststr:=""
-      FOR xloop=1 TO 3
-        teststr:=teststr+LEFT$(tribeN(xloop),2)
+      FOR xloop=1 TO 8
+        IF xloop<>playI(token) THEN 
+          teststr:=teststr+" "+LEFT$(tribeN(xloop),1)
+        ENDIF 
       NEXT xloop
       LOOP 
         PRINT "Tribe name must start with uppercase, initial can't be: "+teststr
-        tribeN(1):=" Human" \teststr:=""
-        INPUT "What is your tribe's name (Human)",teststr2
-        IF teststr2<>"" THEN  \tribeN(1):="Human" \ ENDIF 
+        teststr:=""
+        PRINT "What is your tribe's name ("; tribeN(4); ")";  \ INPUT teststr2
+        IF teststr2<>"" THEN  \tribeN(1):=teststr2 \ ENDIF 
         tmp:=ASC(LEFT$(playN(1),1))
         IF tmp>90 THEN  \tmp:=tmp+32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99) \ ENDIF 
       EXITIF SUBSTR(LEFT$(playN(1),1),teststr)=0 THEN 
@@ -58,9 +61,9 @@ PROCEDURE consMake
       PRINT "What is the name of this game ("; filename; ")"; 
       INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
-      filename:=filename+".dat"
       ON ERROR GOTO 10
-      SHELL "del "+filename
+      SHELL "del "+filename+".map"
+      SHELL "del "+filename+".dat"
  10   ON ERROR 
       PRINT  \ PRINT "Creating Galaxy. please wait..."
       RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
@@ -69,7 +72,7 @@ PROCEDURE consMake
         FOR xloop:=1 TO 12 \playS(yloop,xloop):=100 \NEXT xloop
         FOR xloop=1 TO 3 \playM(yloop,xloop):=100 \NEXT xloop
       NEXT yloop
-      PRINT "reticulating splines..."
+      PRINT "reticulating splines:"
       FOR yloop=1 TO 64
         gscan(1,yloop):="" \gscan(2,yloop):=""
         FOR xloop=1 TO 64
@@ -77,8 +80,9 @@ PROCEDURE consMake
         NEXT xloop
         PRINT "."; 
       NEXT yloop
-      PRINT  \ PRINT "casting orbitals..."
+      PRINT  \ PRINT "Casting orbits..."; 
       FOR mloop=1 TO syst(1) \(* create galaxy
+        PRINT "."; 
         LOOP 
           tmp:=MOD(mloop,3)
           IF tmp=0 THEN  \testx:=INT(RND(63)+1) \testy:=INT(RND(63)+1) \ ENDIF 
@@ -107,11 +111,13 @@ PROCEDURE consMake
       NEXT mloop
       FOR xloop=1 TO 8
         GOSUB 9004
+        tribeX(xloop):=0 \tribeY(xloop):=0
         tint(1):=2 \tint(2):=5 \tint(3):=5 \char:=LEFT$(tribeN(xloop),1)
-        tribeX(xloop):=testx \tribeY(xloop):=testy \glvl:=1 \ GOSUB 9000 \ GOSUB 9009
+        IF char<>" " THEN 
+          tribeX(xloop):=testx \tribeY(xloop):=testy \glvl:=1 \ GOSUB 9000 \ GOSUB 9009
+        ENDIF 
       NEXT xloop
  500  (* random gen local players
-      PRINT "replicating players..."
       FOR lloop=1 TO 8
         LOOP 
           LOOP 
@@ -133,15 +139,19 @@ PROCEDURE consMake
         char:=LEFT$(playN(lloop),1) \playX(lloop):=testx \playY(lloop):=testy
         glvl:=1 \ GOSUB 9000
       NEXT lloop
- 1000 CREATE #path,filename:WRITE
-      FOR yloop=1 TO 64 \ WRITE #path,gscan(1,yloop) \NEXT yloop
-      FOR yloop=1 TO 64
-        FOR mloop=1 TO 64
-          tmp:=ASC(MID$(gscan(2,yloop),mloop,1))
-          WRITE #path,tmp
-        NEXT mloop
-      NEXT yloop
- 1001 (* 
+ 1000 CREATE #path,filename+".map":WRITE
+      PRINT  \ PRINT "Saving map:"; 
+      FOR xloop=1 TO 2
+        FOR yloop=1 TO 64
+          PRINT "."; 
+          FOR mloop=1 TO 64
+            tmp:=ASC(MID$(gscan(xloop,yloop),mloop,1))
+            WRITE #path,tmp
+          NEXT mloop
+        NEXT yloop
+        PRINT 
+      NEXT xloop
+      CLOSE #path \ CREATE #path,filename+".dat":WRITE
       WRITE #path,token \ WRITE #path,rounds
       FOR lloop=1 TO 8
         WRITE #path,playN(lloop) \ WRITE #path,playX(lloop) \ WRITE #path,playY(lloop)
@@ -189,5 +199,5 @@ PROCEDURE consMake
  9992 DATA "Antimatter (Warp, Main Pwr, Pulse, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
       DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
  9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital",8,"Q:galactic",4,"#:bases",4
- 9994 DATA " Books"," Toons"," Film"," Human"
+ 9994 DATA "Books","Toons","Film","Human"," "," "," "," "
  9995 DATA "SRVY","CHSE","LEAD","WING","RTB","    "

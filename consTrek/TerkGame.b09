@@ -1,5 +1,5 @@
 PROCEDURE consGame
-      (* TerkGame jan01 - terminal game for Basic09
+      (* TerkGame jan12 - terminal game for Basic09
       (* play debug & balance
       
       DIM gscan(2,64):STRING[64]
@@ -148,6 +148,7 @@ PROCEDURE consGame
         IF cmd=0 THEN 1050
  1060   ON cmd GOSUB 2000,2100,2200,2300,2600
         IF flags(4)=FALSE THEN  \flags(4):=TRUE \ GOTO 1060 \ ENDIF
+         
  1070 ENDLOOP 
       
  2000 (* engines
@@ -443,19 +444,23 @@ PROCEDURE consGame
       PRINT "What is the name of this game ("; filename; ")"; 
       INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
-      filename:=filename+".dat"
       ON ERROR GOTO 2611
-      SHELL "del "+filename
+      SHELL "del "+filename+".map"
+      SHELL "del "+filename+".dat"
  2611 ON ERROR 
       PRINT  \ PRINT "Preserving Galaxy. please wait..."
-      CREATE #path,filename:WRITE
-      FOR yloop=1 TO 64 \ WRITE #path,gscan(1,yloop) \NEXT yloop
-      FOR yloop=1 TO 64
-        FOR mloop=1 TO 64
-          tmp:=ASC(MID$(gscan(2,yloop),mloop,1))
-          WRITE #path,tmp
-        NEXT mloop
-      NEXT yloop
+      CREATE #path,filename+".map":WRITE
+      FOR xloop=1 TO 2
+        FOR yloop=1 TO 64
+          FOR mloop=1 TO 64
+            tmp:=ASC(MID$(gscan(xloop,yloop),mloop,1))
+            WRITE #path,tmp
+          NEXT mloop
+          PRINT "."; 
+        NEXT yloop
+      NEXT xloop
+      PRINT  \ CLOSE #path
+      CREATE #path,filename+".dat":WRITE
  2615 (* short save entry point
       WRITE #path,token \ WRITE #path,rounds
       FOR lloop=1 TO 8
@@ -475,17 +480,18 @@ PROCEDURE consGame
       PRINT "Game file to load ("; filename; ")"; 
       INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
-      filename:=filename+".dat"
       PRINT  \ PRINT "Loading Game. please wait..."
-      OPEN #path,filename:READ
-      FOR yloop=1 TO 64 \ READ #path,gscan(1,yloop) \NEXT yloop
-      FOR yloop=1 TO 64
-        gscan(2,yloop):=""
-        FOR mloop=1 TO 64
-          READ #path,tmp
-          gscan(2,yloop):=gscan(2,yloop)+CHR$(tmp)
-        NEXT mloop
-      NEXT yloop
+      OPEN #path,filename+".map":READ
+      FOR xloop=1 TO 2
+        FOR yloop=1 TO 64
+          gscan(xloop,yloop):=""
+          FOR mloop=1 TO 64
+            READ #path,tmp \gscan(xloop,yloop):=gscan(xloop,yloop)+CHR$(tmp)
+          NEXT mloop
+        NEXT yloop
+      NEXT xloop
+      CLOSE #path
+      OPEN #path,filename+".dat":READ
       READ #path,token \ READ #path,rounds
       FOR lloop=1 TO 8
         READ #path,playN(lloop) \ READ #path,playX(lloop) \ READ #path,playY(lloop)
@@ -505,7 +511,7 @@ PROCEDURE consGame
       
  3000 (* AI players 
       glxX:=playX(token) \glxY:=playY(token)
-      prnstr:=LEFT$(tribeN(ABS(playI(token))),2)+":"+playN(token)+" "
+      prnstr:=LEFT$(tribeN(ABS(playI(token))),1)+":"+playN(token)+" "
       FOR mloop=1 TO 3 \(* run DC
         IF playS(token,mloop)<75 THEN  \(* set DC lmt
           IF flags(2)=TRUE THEN 
@@ -581,7 +587,7 @@ PROCEDURE consGame
  3010 (* resolve plan
       tmp4:=0 \tcnt:=range(token)
       prnstr:=prnstr+"  "+STR$(range(token))+" to "
-      prnstr:=prnstr+LEFT$(tribeN(ABS(playI(target(token)))),2)+":"+playN(target(token))+" "
+      prnstr:=prnstr+LEFT$(tribeN(ABS(playI(target(token)))),1)+":"+playN(target(token))+" "
       IF tcnt>24 THEN  \(* set chse dist 
         tmp4:=3 \ GOSUB 3040 \(* nobody close, drift to base
       ENDIF 
@@ -886,5 +892,5 @@ PROCEDURE consGame
  9992 DATA "Antimatter (Warp, Main Pwr, Pulse, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
       DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
  9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital",8,"Q:galactic",4,"#:bases",4
- 9994 DATA " Books"," Toons"," Film"," Human"
+ 9994 DATA " Books"," Toons"," Film"," Human"," "," "," "," "
  9995 DATA "SRVY","CHSE","LEAD","WING","RTB","    "

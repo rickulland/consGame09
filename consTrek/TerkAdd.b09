@@ -1,6 +1,6 @@
 PROCEDURE consAdd
-      (* TerkAdd jan09 - see TerkGame
-      (* add player - initial
+      (* TerkAdd jan10 - see TerkGame
+      (* add player prealpha 
       DIM sysname,filename:STRING[80]
       DIM gscan(2,64):STRING[64]
       DIM teststr,teststr2:STRING[16]
@@ -18,21 +18,12 @@ PROCEDURE consAdd
         leader(lloop):=0 \playP(lloop):=1 \target(lloop):=lloop
       NEXT lloop
       RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
-      RESTORE 9994 \ FOR lloop=1 TO 4 \ READ tribeN(lloop) \NEXT lloop
-
-      teststr:="" \ filename:="Terk"
-      FOR xloop=2 TO 8 \teststr:=teststr+" "+LEFT$(playN(xloop),1) \NEXT xloop
-      PRINT "What is the name of this game ("; filename; ")"; \ INPUT teststr
+      RESTORE 9994 \ FOR lloop=1 TO 8 \ READ tribeN(lloop) \NEXT lloop
+      
+      teststr:="" \filename:="Terk"
+      PRINT "What is the name of this game ("; filename; ")";  \ INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
       OPEN #path,filename+".dat":READ
-      FOR xloop=1 TO 2
-        FOR yloop=1 TO 64
-          gscan(xloop,yloop):=""
-          FOR mloop=1 TO 64
-            READ #path,tmp \ gscan(xloop,yloop):=gscan(xloop,yloop)+CHR$(tmp)
-          NEXT mloop
-        NEXT yloop
-      NEXT xloop
       READ #path,token \ READ #path,rounds
       FOR lloop=1 TO 8
         READ #path,playN(lloop) \ READ #path,playX(lloop) \ READ #path,playY(lloop)
@@ -40,57 +31,64 @@ PROCEDURE consAdd
         READ #path,target(lloop) \ READ #path,leader(lloop) \ READ #path,played(lloop)
         READ #path,hosted(lloop)
         READ #path,tribeN(lloop) \ READ #path,tribeX(lloop) \ READ #path,tribeY(lloop)
-
-        IF tribeN(lloop)<0 THEN \ PRINT " ";lloop;": ";
-        ELSE \ PRINT "   ";
-        ENDIF
-        PRINT playN(lloop); " Tribe:"; ABS(tribeN(lloop));"  Score:"; playC(lloop); 
-        PRINT "  Leader:"; leader(lloop); "  host by: "; hosted(lloop); 
-        FOR yloop=1 TO 3 \ READ #path,playM(lloop,yloop) \ NEXT yloop 
-        FOR yloop=1 TO 12 \ READ #path,playS(lloop,yloop) \ NEXT yloop
-      NEXT lloop
-      LOOP
-        INPUT "Select a character to assume (1-8):", token
-      EXITIF playI(token)<0 THEN
-      ENDEXIT
-      ENDLOOP
-      FOR lloop=1 TO 8 \(* is any existing member of this tribe human?
-        IF lloop<>token THEN
-          IF ABS(playI(lloop))=ABS(playI(token)) AND playI(lloop)>0 THEN
-            playI(token):=ABS(playI(lloop)) \ flag:=TRUE
-          ENDIF
-        ENDIF
+        IF playI(lloop)<0 THEN  \ PRINT " "; lloop; ": "; 
+        ELSE  \ PRINT "    "; 
+        ENDIF 
+        PRINT playN(lloop); " Tribe:"; tribeN(ABS(playI(lloop))); "  Score:"; playC(lloop); 
+        PRINT "  Leader:"; leader(lloop); "  host by: "; hosted(lloop)
+        FOR yloop=1 TO 3 \ READ #path,playM(lloop,yloop) \NEXT yloop
+        FOR yloop=1 TO 12 \ READ #path,playS(lloop,yloop) \NEXT yloop
       NEXT lloop
       LOOP 
-        PRINT "Player names must be 8 char lowercase, initial can't be: "+teststr
-        INPUT "What is your name (";playN(token);")",teststr2
-        IF teststr2<>"" THEN  \playN(token):=teststr2 \ ENDIF 
-        tmp:=ASC(LEFT$(playN(1),1))
-        IF tmp<97 THEN 
-          tmp:=tmp-32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99)
+        INPUT "Select a character to assume (1-8):",token
+      EXITIF playI(token)<0 THEN 
+      ENDEXIT 
+      ENDLOOP 
+      FOR lloop=1 TO 8 \(* is any existing member of this tribe human?
+        IF lloop<>token THEN 
+          IF ABS(playI(lloop))=ABS(playI(token)) AND playI(lloop)>0 THEN 
+            playI(token):=ABS(playI(lloop)) \flag:=TRUE
+          ENDIF 
         ENDIF 
-      EXITIF SUBSTR(LEFT$(playN(1),1),teststr)=0 THEN 
+      NEXT lloop
+      teststr:=""
+      FOR xloop=1 TO 8
+        IF xloop<>token THEN 
+          teststr:=teststr+" "+LEFT$(playN(xloop),1)
+        ENDIF 
+      NEXT xloop
+      LOOP 
+        PRINT "Player names must be 8 char lowercase, initial can't be: "+teststr
+        PRINT "What is your name ("; playN(token); ")" \ INPUT teststr2
+        IF teststr2<>"" THEN  \playN(token):=teststr2 \ ENDIF 
+        tmp:=ASC(LEFT$(playN(token),1))
+        IF tmp<97 THEN 
+          tmp:=tmp+32 \playN(token):=CHR$(tmp)+MID$(playN(token),2,99)
+        ENDIF 
+        (* ********************************substr bug FIXME
+      EXITIF SUBSTR(LEFT$(playN(token),1),teststr)=0 THEN 
       ENDEXIT 
         PRINT "You can't share initials with another."
       ENDLOOP 
       teststr:=""
-      FOR xloop=1 TO 3
-        teststr:=teststr+LEFT$(tribeN(xloop),2)
+      FOR xloop=1 TO 8
+        IF xloop<>token THEN 
+          teststr:=teststr+LEFT$(tribeN(xloop),2)
+        ENDIF 
       NEXT xloop
-
       LOOP 
         PRINT " As the first human in this tribe, you may rename it."
         PRINT "Tribe name must start with uppercase, initial can't be: "+teststr
-        teststr:=""
-        INPUT "What is your tribe's name (";tribeN(token);")",teststr2
+        teststr2:=""
+        PRINT "What is your tribe's name ("; tribeN(token); ")"; \ INPUT teststr2
         IF teststr2<>"" THEN  \tribeN(token):=teststr2 \ ENDIF 
-        tmp0:=ASC(LEFT$(playN(1),1))
-        IF tmp0>90 THEN  \tmp0:=tmp0+32 \playN(1):=CHR$(tmp0)+MID$(playN(1),2,99) \ ENDIF 
-      EXITIF SUBSTR(LEFT$(playN(token),1),teststr)=0 THEN 
+        tmp0:=ASC(LEFT$(tribeN(token),1))
+        IF tmp0>90 THEN  \tmp0:=tmp0-32 \tribeN(token):=CHR$(tmp0)+MID$(tribeN(token),2,99) \ ENDIF 
+      EXITIF SUBSTR(LEFT$(tribeN(token),1),teststr)=0 THEN 
       ENDEXIT 
         PRINT "Your tribe can't share initials with another."
       ENDLOOP 
-    
+      
       SEEK #path,0
       FOR xloop=1 TO 2
         FOR yloop=1 TO 64
@@ -100,7 +98,6 @@ PROCEDURE consAdd
           NEXT mloop
         NEXT yloop
       NEXT xloop
-
       WRITE #path,token \ WRITE #path,rounds
       FOR lloop=1 TO 8
         WRITE #path,playN(lloop) \ WRITE #path,playX(lloop) \ WRITE #path,playY(lloop)
@@ -116,5 +113,5 @@ PROCEDURE consAdd
       END 
       
  9990 DATA "player1",4,"nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5",-3,"mfalcon",-3,"tardis7",-4
- 9994 DATA " Books"," Toons"," Film"," Human"
+ 9994 DATA " Books"," Toons"," Film"," Human"," "," "," "," "
  9995 DATA "SRVY","CHSE","LEAD","WING","RTB","    "

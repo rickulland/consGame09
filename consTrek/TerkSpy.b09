@@ -1,177 +1,205 @@
-PROCEDURE TerkSpy
-      (* TerkSpy1 jan01 - see TerkGame
-      (*  debug modules - initial
-      DIM gscan(2,64):STRING[64]
-      DIM tribeN(8),playN(8),playR(12):STRING[8]
-      DIM planN(6):STRING[4]
+PROCEDURE consSpy
+      (* TerkSpy jan22 - see TerkGame
+      (* player edit
       DIM sysname,filename:STRING[80]
+      DIM gscan(2,64):STRING[64]
       DIM teststr,teststr2:STRING[16]
+      DIM tribeN(8),playN(8),playR(12),spaces:STRING[8]
+      DIM planN(8):STRING[8]
       DIM char:STRING[1]
-      DIM dashes:STRING[28]
-      DIM spaces:STRING[1]
       DIM playS(8,12),playM(8,3),playX(8),playY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
       DIM tribeX(8),tribeY(8),target(8),leader(8),tint(3),rint(3),hosted(8):INTEGER
-      DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,token,rounds:INTEGER
-      DIM path:BYTE
-      DIM played(8),flags(3):BOOLEAN
-      flags(2):=TRUE \flags(3):=FALSE
+      DIM tmp,tmp0,tmp1,tmp2,testp,testx,testy,lloop,mloop,xloop,yloop,glvl,token,rounds:INTEGER
+      DIM path,path2:BYTE
+      DIM played(8),saveme,savemap:BOOLEAN
+      saveme:=FALSE \ savemap:=FALSE
       RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
       RESTORE 9993 \sysname:=" "
       FOR lloop:=1 TO 6
         READ teststr,syst(lloop) \sysname:=sysname+" "+teststr
       NEXT lloop
       RESTORE 9995
-      FOR lloop=1 TO 6 \ READ planN(lloop) \NEXT lloop
+      FOR lloop=1 TO 8 \ READ planN(lloop) \NEXT lloop
       teststr:="o"
       FOR xloop=2 TO 8
         teststr:=teststr+" "+LEFT$(playN(xloop),1)
       NEXT xloop
-      dashes:="----------------------------" \spaces:="        "
-      GOSUB 2620 \(* load game
+      spaces:="        "
+      (* Load game data
+      filename:="Terk" \ PRINT "Game file to load ("; filename; ")"; 
+      INPUT teststr \ IF teststr<>"" THEN  \filename:=teststr \ ENDIF
+      GOSUB 2625
       
- 2400 LOOP 
-        PRINT " Debug Page:"
-        teststr:="on " \ IF flags(2)=TRUE THEN  \teststr:="off" \ ENDIF 
-        teststr2:="More" \ IF flags(3)=TRUE THEN  \teststr2:="Less" \ ENDIF 
-        PRINT " 1) "; teststr2; " info  2) Jump X,Y   3) Dump Galaxy   4) Dump Players  "
-        PRINT " 5) Spy "; teststr; "   6) Quit    "; 
-        INPUT cmd \cmd:=MOD(cmd,7)+50
-        ON cmd-50 GOSUB 2410,2420,2430,2440,2450,2460
+      LOOP 
+        PRINT " Admin Commands:" \ PRINT " 1) Dump Players   2) Edit Players"; 
+        INPUT "   3) Dump map   4) Quit ?",cmd0
+      EXITIF cmd0>3 THEN 
+      ENDEXIT 
+        IF cmd0=1 THEN  \(* dump all players
+          FOR testp:=1 TO 8 \ GOSUB 8000 \NEXT testp
+          GOTO 2420
+        ENDIF 
+        
+        IF cmd0=3 THEN  \(* dump map
+          GOSUB 2620 \(* load map
+          FOR yloop=1 TO 64
+            PRINT yloop; "|"; gscan(1,yloop); "|"
+            IF MOD(yloop,16)=0 THEN  \ PRINT yloop;  \ INPUT a$ \ ENDIF 
+            IF MOD(yloop,64)=0 THEN  \ PRINT "next";  \ INPUT a$ \ ENDIF 
+          NEXT yloop
+          FOR yloop=1 TO 64
+            PRINT gscan(2,yloop); "."; 
+            PRINT "==="; yloop \ PRINT 
+            IF MOD(yloop,8)=0 THEN  \ PRINT "next";  \ INPUT a$ \ ENDIF 
+          NEXT yloop
+          PRINT 
+          GOTO 2420
+        ENDIF 
+        
+        IF cmd0=2 THEN  \(* edit player
+          FOR lloop=1 TO 8 \ PRINT lloop; ") "; playN(lloop) \NEXT lloop \ ENDIF 
+        INPUT "Player to change? ",testp \ GOSUB 8000 \ PRINT 
+        INPUT " 1)Name   2)X,Y Pos.   3)Tribe   4)Plan   5)Stores   6)Stats   7)Exit ? ",cmd
+        
+        IF cmd=1 THEN  \(* change name
+          PRINT "----- "; playN(lloop) \ INPUT teststr
+          IF teststr<>"" THEN  \playN(testp):=teststr \saveme:=TRUE \ ENDIF 
+        ENDIF 
+        
+        IF cmd=2 THEN  \(* change X,Y
+          GOSUB 2620 \(* load map
+          (* lift player
+          testx:=playX(testp) \testy:=playY(testp) \ GOSUB 9013
+          PRINT  \ INPUT "Sector X: ",glxX \ INPUT "Sector Y: ",glxY
+          testx:=glxX \testy:=glxY \ GOSUB 9001 \(* step right to clear
+          (* drop player
+          playX(testp):=testx \playY(testp):=testy \ GOSUB 9014
+          savemap:=TRUE
+        ENDIF 
+        
+        IF cmd=3 THEN  \(* change tribe
+          FOR yloop=1 TO 8
+            IF LEFT$(tribeN(yloop),1)<>" " THEN 
+              PRINT yloop; ") "; tribeN(yloop); ": "; 
+              FOR xloop=1 TO 8
+                IF ABS(playI(xloop))=yloop THEN  \ PRINT playN(xloop); " ";  \ ENDIF 
+              NEXT xloop
+              PRINT 
+            ENDIF 
+          NEXT yloop
+          PRINT 
+          INPUT "Join tribe (1-8):",a$
+          IF a$<>"" THEN  \playI(testp):=VAL(a$) \saveme:=TRUE \ ENDIF
+        ENDIF 
+        
+        IF cmd=4 THEN  \(* change plan
+          FOR yloop=1 TO 8
+            IF LEFT$(planN(yloop),1)<>" " THEN 
+              PRINT yloop; ") "; planN(yloop)
+              tmp:=lloop
+            ENDIF 
+          NEXT yloop
+          INPUT "Change plan to #):",a$
+          IF a$<>"" THEN tmp0:=VAL(a$)
+            IF tmp0<=tmp THEN playP(testp):=VAL(a$) \saveme:=TRUE \ ENDIF 
+          ENDIF 
+        ENDIF 
+        
+        IF cmd=5 THEN  \(* change Cargo/Stores
+          testx:=playX(testp) \testy:=playY(testp) \ GOSUB 9008 \(* get tint()
+          INPUT "Input 3 digit cargo as: MAM(0-2)Atm(0-5)Chm(0-5)",a$
+          IF a$<>"" THEN tmp1:=VAL(a$) \saveme:=TRUE \ ENDIF 
+          IF tmp1>255 THEN  \tmp1:=255 \ ENDIF 
+          testx:=playX(testp) \testy:=playY(testp)
+          char:=CHR$(tmp1) \glvl:=2 \ GOSUB 9000 \glvl:=1
+          
+          FOR lloop=1 TO 3
+            teststr2:=MID$("MAMAtmChm",lloop*3-2,3)
+            PRINT " Stores: "; teststr2; "(0-100): ";  \ INPUT a$
+            IF a$<>"" THEN tmp1:=VAL(a$) \saveme:=TRUE \ ENDIF 
+            IF tmp1>100 THEN  \tmp1:=100 \ ENDIF 
+            playM(testp,lloop):=tmp1
+          NEXT lloop
+        ENDIF 
+        
+        IF cmd=6 THEN  \(* change Stats             
+          LOOP 
+            PRINT 
+            FOR yloop=1 TO 12 \ PRINT yloop; ") "; playR(yloop); "="; playS(testp,yloop) \NEXT yloop
+            INPUT "Stat to change?",tmp0 \ INPUT "New value?",a$
+            IF a$<>"" THEN tmp1:=VAL(a$) \saveme:=TRUE \ ENDIF 
+            IF tmp1>100 THEN  \tmp1:=100 \ ENDIF 
+            playS(testp,tmp0):=tmp1 \saveme:=TRUE
+            INPUT "y for more ",a$
+          EXITIF a$<>"y" THEN 
+          ENDEXIT 
+          ENDLOOP 
+        ENDIF 
+        
+ 2420   (* IFTHEN bugfix
       ENDLOOP 
       
- 2410 (* info flag
-      IF flags(3)=TRUE THEN 
-        flags(3):=FALSE
-      ELSE 
-        flags(3):=TRUE
-      ENDIF 
-      RETURN 
-      
- 2420 (* jump to x,y
-      FOR lloop:=0 TO 4 STEP 4
-        FOR xloop=1 TO 4
-          PRINT "    "; lloop+xloop; " "; playN(lloop+xloop); 
+ 2602 ON ERROR 
+ 2610 (* save game map
+      IF savemap=TRUE THEN 
+        ON ERROR GOTO 2602
+        SHELL "del "+filename+".map"
+        PRINT  \ PRINT "Preserving Galaxy. please wait..."
+        CREATE #path,filename+".map":WRITE
+        FOR xloop=1 TO 2
+          FOR yloop=1 TO 64
+            FOR mloop=1 TO 64
+              tmp:=ASC(MID$(gscan(xloop,yloop),mloop,1))
+              WRITE #path,tmp
+            NEXT mloop
+            PRINT "."; 
+          NEXT yloop
         NEXT xloop
-        PRINT 
-      NEXT lloop
-      INPUT " Player number? ",tmp1
-      testx:=playX(tmp1) \testy:=playY(tmp1)
-      char:=" " \glvl:=1 \ GOSUB 9000
-      INPUT "Sector X: ",glxX \ INPUT "Sector Y: ",glxY
-      testx:=glxX \testy:=glxY
-      GOSUB 9001
-      glxX:=testx \glxY:=testy
-      playX(tmp1):=glxX \playY(tmp1):=glxY
-      testx:=playX(tmp1) \testy:=playY(tmp1)
-      char:=LEFT$(playN(tmp1),1) \ GOSUB 9001
-      GOSUB 9007
-      RETURN 
-      
- 2430 PRINT "Dump galaxy:"
-      FOR yloop=1 TO 64
-        IF yloop<10 THEN  \ PRINT " ";  \ ENDIF 
-        PRINT yloop; " "; 
-        FOR xloop=1 TO 57 STEP 8
-          PRINT MID$(gscan(1,yloop),xloop,8); "|"; 
-        NEXT xloop
-        PRINT 
-        IF flags(3)=TRUE THEN 
-          PRINT "   "; 
-          FOR xloop=1 TO 57 STEP 8
-            FOR lloop=0 TO 7
-              testx:=lloop+xloop \testy:=yloop \ GOSUB 9008
-              IF tint(1)>0 THEN 
-                tmp:=4
-                IF tint(2)>0 THEN 
-                  tmp:=6
-                ELSE 
-                  IF tint(3)>0 THEN  \tmp:=5 \ ENDIF 
-                ENDIF 
-                IF tint(2)>0 AND tint(3)>0 THEN  \tmp:=7 \ ENDIF 
-              ELSE 
-                IF tint(2)>0 THEN 
-                  tmp:=2
-                  IF tint(3)>0 THEN  \tmp:=3 \ ENDIF 
-                ELSE 
-                  IF tint(3)>0 THEN  \tmp:=1 \ ENDIF 
-                ENDIF 
-              ENDIF 
-              IF tmp>0 THEN 
-                char:=STR$(tmp)
-              ELSE 
-                char:=":"
-              ENDIF 
-              PRINT char; 
-            NEXT lloop
-            PRINT ":"; 
-          NEXT xloop
-        ENDIF 
-        PRINT 
-        IF MOD(yloop,8)=0 THEN 
-          IF MOD(yloop,16)=0 THEN 
-            PRINT sysname
-          ELSE 
-            PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN(4),playN(5),playN(6),playN(7),playN(8)
-            IF flags(3)=TRUE THEN 
-              PRINT "M/am - Atomic - Chemical  1) C  2) A  3) C+A  4) M  5) M+C  6) M+A  7) all"
-            ENDIF 
-          ENDIF 
-          INPUT "q=quit ",a$
-          IF a$="q" THEN  \ RETURN  \ ENDIF 
-        ENDIF 
-      NEXT yloop
-      RETURN 
-      
- 2440 (* dump player status
-      FOR lloop:=1 TO 8
-        PRINT "----- "; playN(lloop); " at "; playX(lloop); ","; playY(lloop); "  Tribe: "; tribeN(ABS(playI(lloop))); 
-        PRINT "  Plan: "; planN(playP(lloop)); 
-        IF playP(lloop)=2 OR playP(lloop)=3 THEN 
-          PRINT " "; playN(target(lloop))
-        ELSE 
-          PRINT 
-        ENDIF 
-        testx:=playX(lloop) \testy:=playY(lloop) \ GOSUB 9008
-        PRINT spaces; "  Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3); 
-        PRINT " Stores: MAM:"; playM(lloop,1); " Atm:"; playM(lloop,2); " Chm:"; playM(lloop,3)
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(1),playS(lloop,1),playR(2),playS(lloop,2),playR(3),playS(lloop,3),"%"
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(4),playS(lloop,4),playR(5),playS(lloop,5),playR(6),playS(lloop,6),"%"
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(7),playS(lloop,7),playR(8),playS(lloop,8),playR(9),playS(lloop,9),"%"
-        PRINT spaces; 
-        PRINT USING "3(s8<,i4>),s1>",playR(10),playS(lloop,10),playR(11),playS(lloop,11),playR(12),playS(lloop,12),"%"
-        IF lloop=4 OR lloop=8 THEN  \ INPUT "next ?",a$ \ ENDIF 
-      NEXT lloop
-      RETURN 
- 2450 (* all players?
-      IF flags(2)=TRUE THEN 
-        flags(2):=FALSE
+        PRINT " Map saved." \ CLOSE #path
       ELSE 
-        flags(2):=TRUE
+        PRINT " Map not changed."
       ENDIF 
-      RETURN 
- 2460 STOP 
+      
+ 2615 IF saveme=TRUE THEN 
+        ON ERROR GOTO 2616
+        SHELL "del "+filename+".dat"
+ 2616   ON ERROR 
+        CREATE #path,filename+".dat":WRITE
+        WRITE #path,token \ WRITE #path,rounds
+        FOR lloop=1 TO 8
+          WRITE #path,playN(lloop) \ WRITE #path,playX(lloop) \ WRITE #path,playY(lloop)
+          WRITE #path,playI(lloop) \ WRITE #path,playC(lloop) \ WRITE #path,playP(lloop)
+          WRITE #path,target(lloop) \ WRITE #path,leader(lloop) \ WRITE #path,played(lloop)
+          WRITE #path,hosted(lloop)
+          WRITE #path,tribeN(lloop) \ WRITE #path,tribeX(lloop) \ WRITE #path,tribeY(lloop)
+          FOR yloop=1 TO 12 \ WRITE #path,playS(lloop,yloop) \NEXT yloop
+          FOR yloop=1 TO 3 \ WRITE #path,playM(lloop,yloop) \NEXT yloop
+        NEXT lloop
+        PRINT " Player data saved." \ CLOSE #path
+      ELSE 
+        PRINT " Players not changed."
+      ENDIF 
+      END 
       
  2620 (* Load/reload game
-      filename:="Terk"
-      PRINT "Game file to load ("; filename; ")"; 
-      INPUT teststr
-      IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
-      filename:=filename+".dat"
-      PRINT  \ PRINT "Loading Game. please wait..."
-      OPEN #path,filename:READ
-      IF LEFT$(filename,1)="s" THEN 2625
-      FOR yloop=1 TO 64 \ READ #path,gscan(1,yloop) \NEXT yloop
-      FOR yloop=1 TO 64
-        gscan(2,yloop):=""
-        FOR mloop=1 TO 64
-          READ #path,tmp
-          gscan(2,yloop):=gscan(2,yloop)+CHR$(tmp)
-        NEXT mloop
-      NEXT yloop
- 2625 (* short read insert
+      PRINT "Map file to load ("; filename; ")"; 
+      INPUT teststr \ IF teststr="" THEN  \teststr:=filename \ ENDIF
+      OPEN #path,teststr+".map":READ
+      FOR xloop=1 TO 2
+        FOR yloop=1 TO 64
+          PRINT "."; 
+          gscan(xloop,yloop):=""
+          FOR mloop=1 TO 64
+            READ #path,tmp \gscan(xloop,yloop):=gscan(xloop,yloop)+CHR$(tmp)
+          NEXT mloop
+        NEXT yloop
+      NEXT xloop
+      CLOSE #path
+      RETURN 
+      
+ 2625 (* load data
+      PRINT  \ PRINT "Loading Players..."
+      OPEN #path,filename+".dat":READ
       READ #path,token \ READ #path,rounds
       FOR lloop=1 TO 8
         READ #path,playN(lloop) \ READ #path,playX(lloop) \ READ #path,playY(lloop)
@@ -185,7 +213,27 @@ PROCEDURE TerkSpy
       CLOSE #path
       RETURN 
       
-      (* Utility Stuffs ---------------
+ 8000 (* print one player stats  
+      PRINT "----- "; playN(testp); " at "; playX(testp); ","; playY(testp); "  Tribe: "; 
+      PRINT tribeN(ABS(playI(testp))); "  Plan: "; planN(playP(testp)); 
+      IF playP(testp)=2 OR playP(testp)=3 THEN  \ PRINT " "; playN(target(testp))
+      ELSE  \ PRINT 
+      ENDIF 
+      testx:=playX(testp) \testy:=playY(testp) \ GOSUB 9008
+      PRINT spaces; "  Cargo: MAM="; tint(1); " Atm="; tint(2); " Chm="; tint(3); 
+      PRINT " Stores: MAM:"; playM(testp,1); " Atm:"; playM(testp,2); " Chm:"; playM(testp,3)
+      PRINT spaces; 
+      PRINT USING "3(s8<,i4>),s1>",playR(1),playS(testp,1),playR(2),playS(testp,2),playR(3),playS(testp,3),"%"
+      PRINT spaces; 
+      PRINT USING "3(s8<,i4>),s1>",playR(4),playS(testp,4),playR(5),playS(testp,5),playR(6),playS(testp,6),"%"
+      PRINT spaces; 
+      PRINT USING "3(s8<,i4>),s1>",playR(7),playS(testp,7),playR(8),playS(testp,8),playR(9),playS(testp,9),"%"
+      PRINT spaces; 
+      PRINT USING "3(s8<,i4>),s1>",playR(10),playS(testp,10),playR(11),playS(testp,11),playR(12),playS(testp,12),"%"
+      IF testp=4 OR testp=8 THEN  \ INPUT "next ?",a$ \ ENDIF 
+      RETURN 
+      
+      (* Shared Utility Stuffs ---------------
       
  9000 (* string concat
       gscan(glvl,testy):=LEFT$(gscan(glvl,testy),testx-1)+char+MID$(gscan(glvl,testy),testx+1,64)
@@ -209,11 +257,28 @@ PROCEDURE TerkSpy
       tmp:=ASC(MID$(gscan(2,testy),testx,1)) \tint(1):=INT(tmp/100)
       tmp:=tmp-tint(1)*100 \tint(2):=INT(tmp/10) \tint(3):=tmp-tint(2)*10
       RETURN 
+ 9009 (* write resource layer
+      char:=CHR$(tint(1)*100+tint(2)*10+tint(3))
+      glvl:=2 \ GOSUB 9000 \glvl:=1
+      RETURN 
+ 9013 (* lift player
+      char:=" " \glvl:=1 \ GOSUB 9000
+      GOSUB 9008
+      FOR mloop=1 TO 3
+        rint(mloop):=tint(mloop) \tint(mloop):=0
+      NEXT mloop
+      GOSUB 9009
+      RETURN 
+      
+ 9014 (* drop player
+      GOSUB 9007
+      char:=LEFT$(playN(testp),1) \ GOSUB 9000
+      FOR mloop:=1 TO 3 \tint(mloop):=rint(mloop) \NEXT mloop
+      GOSUB 9009
+      RETURN 
       
  9990 DATA "nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5",-3,"mfalcon",-3,"tardis7",-4
  9991 DATA "  Warp: ","% Impls:","%   RCS:","  Main: ","%   APU: ","%  Batt:","% Plse:","%  Torp:","% Miner:","  Shld: ","%  Envr:","% Consu:"
- 9992 DATA "Antimatter (Warp, Main Pwr, Pulse, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
-      DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
  9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital",8,"Q:galactic",4,"#:bases",4
- 9994 DATA " Books"," Toons"," Film"," Human"
- 9995 DATA "SRVY","CHSE","LEAD","WING","RTB ","    "
+ 9995 DATA "SRVY","CHSE","LEAD","WING","RTB ","    ","    ","    "
+      

@@ -1,11 +1,12 @@
 PROCEDURE consDump
-      (* TerkDump jan01- see TerkGame
-      (* save file dump - initial
+      (* TerkDump jan10- see TerkGame
+      (* save file dump - deprecated
+      
+      DIM sysname,filename:STRING[80]
       DIM gscan(2,64):STRING[64]
+      DIM teststr:STRING[16]
       DIM tribeN(8),playN(8),playR(12):STRING[8]
       DIM planN(6):STRING[4]
-      DIM sysname,filename:STRING[80]
-      DIM teststr:STRING[16]
       DIM char:STRING[1]
       DIM playS(8,12),playM(8,3),playX(8),playY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
       DIM tribeX(8),tribeY(8),target(8),leader(8),tint(3),rint(3),hosted(8):INTEGER
@@ -14,18 +15,21 @@ PROCEDURE consDump
       DIM played(8),flag:BOOLEAN
       RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
       RESTORE 9995 \ FOR lloop=1 TO 6 \ READ planN(lloop) \NEXT lloop
-      filename:="Terk"
+      
+      filename:="Terk" \flag:=FALSE
       PRINT "What is the name of this game ("; filename; ")"; 
       INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
-      PRINT "skip map?";  \ INPUT a$
-      flag:=FALSE \ IF a$="y" THEN  \flag=TRUE \ ENDIF 
-      PRINT  \ PRINT "Dumping file..."
-      OPEN #path,filename+".dat":READ
+      PRINT "skip map?";  \ INPUT a$ \ IF a$="y" THEN 100
+      PRINT  \ PRINT "Dumping map..."
+      OPEN #path,filename+".map":READ
       FOR yloop=1 TO 64
-        READ #path,gscan(1,yloop)
+        gscan(1,yloop):=""
+        FOR mloop=1 TO 64
+          READ #path,tmp \gscan(1,yloop):=gscan(1,yloop)+CHR$(tmp)
+        NEXT mloop
         IF flag=FALSE THEN 
-          PRINT "|"; gscan(1,yloop); "|"
+          PRINT yloop; "|"; gscan(1,yloop); "|"
           IF MOD(yloop,16)=0 THEN  \ PRINT yloop;  \ INPUT a$ \ ENDIF
           IF MOD(yloop,64)=0 THEN  \ PRINT "next";  \ INPUT a$ \ ENDIF
         ENDIF 
@@ -46,7 +50,10 @@ PROCEDURE consDump
         ENDIF 
       NEXT yloop
       PRINT 
+      CLOSE #path
+      
  100  (* dump player data
+      OPEN #path,filename+".dat":READ
       READ #path,token \ READ #path,rounds
       PRINT "Token:"; token; " Round: "; rounds
       PRINT 
@@ -58,8 +65,7 @@ PROCEDURE consDump
         READ #path,tribeN(lloop) \ READ #path,tribeX(lloop) \ READ #path,tribeY(lloop)
         PRINT playN(lloop); " @ "; playX(lloop); ","; playY(lloop); "  host by: "; hosted(lloop); 
         PRINT "  Played? "; played(lloop); "  Score:"; playC(lloop)
-        PRINT "Base:"; tribeN(lloop); 
-        PRINT " @ "; tribeX(lloop); ","; tribeY(lloop); 
+        PRINT "Base:"; tribeN(ABS(playI(lloop))); 
         PRINT "  Plan:"; planN(playP(lloop)); "  Target:"; target(lloop); "  Leader:"; leader(lloop)
         PRINT "Matl: "; 
         FOR yloop=1 TO 3 \ READ #path,playM(lloop,yloop)
@@ -71,6 +77,9 @@ PROCEDURE consDump
           IF MOD(yloop,3)=0 THEN  \ PRINT  \ ENDIF 
         NEXT yloop
         INPUT a$
+      NEXT lloop
+      FOR lloop=1 TO 8
+        PRINT tribeN(lloop); " Base @ "; tribeX(lloop); ","; tribeY(lloop)
       NEXT lloop
       CLOSE #path
       END 
