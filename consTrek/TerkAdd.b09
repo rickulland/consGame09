@@ -1,6 +1,6 @@
 PROCEDURE consAdd
-      (* TerkAdd jan10 - see TerkGame
-      (* add player prealpha 
+      (* TerkAdd jan31 - see TerkGame
+      (* add player - split save
       DIM sysname,filename:STRING[80]
       DIM gscan(2,64):STRING[64]
       DIM teststr,teststr2:STRING[16]
@@ -9,7 +9,7 @@ PROCEDURE consAdd
       DIM char:STRING[1]
       DIM playS(8,12),playM(8,3),playX(8),playY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
       DIM tribeX(8),tribeY(8),target(8),leader(8),hosted(8),tint(3),rint(3):INTEGER
-      DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,token,rounds:INTEGER
+      DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,mloop,token,rounds:INTEGER
       DIM path:BYTE
       DIM played(8),flag:BOOLEAN
       flag:=FALSE
@@ -19,7 +19,6 @@ PROCEDURE consAdd
       NEXT lloop
       RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
       RESTORE 9994 \ FOR lloop=1 TO 8 \ READ tribeN(lloop) \NEXT lloop
-      
       teststr:="" \filename:="Terk"
       PRINT "What is the name of this game ("; filename; ")";  \ INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
@@ -40,39 +39,38 @@ PROCEDURE consAdd
         FOR yloop=1 TO 12 \ READ #path,playS(lloop,yloop) \NEXT yloop
       NEXT lloop
       LOOP 
-        INPUT "Select a character to assume (1-8):",token
-      EXITIF playI(token)<0 THEN 
+        INPUT "Select a character to assume (1-8):",mloop
+      EXITIF playI(mloop)<0 THEN 
       ENDEXIT 
       ENDLOOP 
       FOR lloop=1 TO 8 \(* is any existing member of this tribe human?
-        IF lloop<>token THEN 
-          IF ABS(playI(lloop))=ABS(playI(token)) AND playI(lloop)>0 THEN 
-            playI(token):=ABS(playI(lloop)) \flag:=TRUE
+        IF lloop<>mloop THEN 
+          IF ABS(playI(lloop))=ABS(playI(mloop)) AND playI(lloop)>0 THEN 
+            playI(mloop):=ABS(playI(lloop)) \flag:=TRUE
           ENDIF 
         ENDIF 
       NEXT lloop
       teststr:=""
       FOR xloop=1 TO 8
-        IF xloop<>token THEN 
+        IF xloop<>mloop THEN 
           teststr:=teststr+" "+LEFT$(playN(xloop),1)
         ENDIF 
       NEXT xloop
       LOOP 
         PRINT "Player names must be 8 char lowercase, initial can't be: "+teststr
-        PRINT "What is your name ("; playN(token); ")" \ INPUT teststr2
-        IF teststr2<>"" THEN  \playN(token):=teststr2 \ ENDIF 
-        tmp:=ASC(LEFT$(playN(token),1))
+        PRINT "What is your name ("; playN(mloop); ")" \ INPUT teststr2
+        IF teststr2<>"" THEN  \playN(mloop):=teststr2 \ ENDIF 
+        tmp:=ASC(LEFT$(playN(mloop),1))
         IF tmp<97 THEN 
-          tmp:=tmp+32 \playN(token):=CHR$(tmp)+MID$(playN(token),2,99)
+          tmp:=tmp+32 \playN(mloop):=CHR$(tmp)+MID$(playN(mloop),2,99)
         ENDIF 
-        (* ********************************substr bug FIXME
-      EXITIF SUBSTR(LEFT$(playN(token),1),teststr)=0 THEN 
+      EXITIF SUBSTR(LEFT$(playN(mloop),1),teststr)=0 THEN 
       ENDEXIT 
         PRINT "You can't share initials with another."
       ENDLOOP 
       teststr:=""
       FOR xloop=1 TO 8
-        IF xloop<>token THEN 
+        IF xloop<>mloop THEN 
           teststr:=teststr+LEFT$(tribeN(xloop),2)
         ENDIF 
       NEXT xloop
@@ -80,11 +78,11 @@ PROCEDURE consAdd
         PRINT " As the first human in this tribe, you may rename it."
         PRINT "Tribe name must start with uppercase, initial can't be: "+teststr
         teststr2:=""
-        PRINT "What is your tribe's name ("; tribeN(token); ")"; \ INPUT teststr2
-        IF teststr2<>"" THEN  \tribeN(token):=teststr2 \ ENDIF 
-        tmp0:=ASC(LEFT$(tribeN(token),1))
-        IF tmp0>90 THEN  \tmp0:=tmp0-32 \tribeN(token):=CHR$(tmp0)+MID$(tribeN(token),2,99) \ ENDIF 
-      EXITIF SUBSTR(LEFT$(tribeN(token),1),teststr)=0 THEN 
+        PRINT "What is your tribe's name ("; tribeN(mloop); ")"; \ INPUT teststr2
+        IF teststr2<>"" THEN  \tribeN(mloop):=teststr2 \ ENDIF 
+        tmp0:=ASC(LEFT$(tribeN(mloop),1))
+        IF tmp0>90 THEN  \tmp0:=tmp0-32 \tribeN(mloop):=CHR$(tmp0)+MID$(tribeN(mloop),2,99) \ ENDIF 
+      EXITIF SUBSTR(LEFT$(tribeN(mloop),1),teststr)=0 THEN 
       ENDEXIT 
         PRINT "Your tribe can't share initials with another."
       ENDLOOP 

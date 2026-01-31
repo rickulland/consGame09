@@ -1,6 +1,6 @@
 PROCEDURE consMake
-      (* TerkMake jan16 - see TerkGame
-      (* game creator 
+      (* TerkMake jan31 - see TerkGame
+      (* game creator - split save
       DIM gscan(2,64):STRING[64]
       DIM tribeN(8),playN(8),playR(12):STRING[8]
       DIM planN(6):STRING[4]
@@ -34,7 +34,7 @@ PROCEDURE consMake
         IF teststr2<>"" THEN  \playN(1):=teststr2 \ ENDIF 
         tmp:=ASC(LEFT$(playN(1),1))
         IF tmp<97 THEN 
-          tmp:=tmp-32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99)
+          tmp:=tmp+32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99)
         ENDIF 
       EXITIF SUBSTR(LEFT$(playN(1),1),teststr)=0 THEN 
       ENDEXIT 
@@ -51,9 +51,9 @@ PROCEDURE consMake
         teststr:=""
         PRINT "What is your tribe's name ("; tribeN(4); ")";  \ INPUT teststr2
         IF teststr2<>"" THEN  \tribeN(1):=teststr2 \ ENDIF 
-        tmp:=ASC(LEFT$(playN(1),1))
-        IF tmp>90 THEN  \tmp:=tmp+32 \playN(1):=CHR$(tmp)+MID$(playN(1),2,99) \ ENDIF 
-      EXITIF SUBSTR(LEFT$(playN(1),1),teststr)=0 THEN 
+        tmp:=ASC(LEFT$(tribeN(1),1))
+        IF tmp>90 THEN  \tmp:=tmp+32 \tribeN(1):=CHR$(tmp)+MID$(tribeN(1),2,99) \ ENDIF 
+      EXITIF SUBSTR(LEFT$(tribeN(1),1),teststr)=0 THEN 
       ENDEXIT 
         PRINT "Your tribe can't share initials with another."
       ENDLOOP 
