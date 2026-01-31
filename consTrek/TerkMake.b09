@@ -52,7 +52,7 @@ PROCEDURE consMake
         PRINT "What is your tribe's name ("; tribeN(4); ")";  \ INPUT teststr2
         IF teststr2<>"" THEN  \tribeN(1):=teststr2 \ ENDIF 
         tmp:=ASC(LEFT$(tribeN(1),1))
-        IF tmp>90 THEN  \tmp:=tmp+32 \tribeN(1):=CHR$(tmp)+MID$(tribeN(1),2,99) \ ENDIF 
+        IF tmp>90 THEN  \tmp:=tmp-32 \tribeN(1):=CHR$(tmp)+MID$(tribeN(1),2,99) \ ENDIF 
       EXITIF SUBSTR(LEFT$(tribeN(1),1),teststr)=0 THEN 
       ENDEXIT 
         PRINT "Your tribe can't share initials with another."
