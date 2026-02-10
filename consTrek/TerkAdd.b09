@@ -1,15 +1,14 @@
 PROCEDURE consAdd
-      (* TerkAdd jan31 - see TerkGame
-      (* add player - split save
+      (* TerkAdd feb10 - see TerkGame
+      (* add player - need site data form
       DIM sysname,filename:STRING[80]
-      DIM gscan(2,64):STRING[64]
       DIM teststr,teststr2:STRING[16]
       DIM tribeN(8),playN(8),playR(12):STRING[8]
       DIM planN(6):STRING[4]
       DIM char:STRING[1]
       DIM playS(8,12),playM(8,3),playX(8),playY(8),playI(8),playC(8),playP(8),syst(6):INTEGER
       DIM tribeX(8),tribeY(8),target(8),leader(8),hosted(8),tint(3),rint(3):INTEGER
-      DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,mloop,token,rounds:INTEGER
+      DIM tmp,tmp0,tmp1,tmp2,testx,testy,lloop,mloop,xloop,yloop,glvl,mloop,tokenounds:INTEGER
       DIM path:BYTE
       DIM played(8),flag:BOOLEAN
       flag:=FALSE
@@ -18,11 +17,11 @@ PROCEDURE consAdd
         leader(lloop):=0 \playP(lloop):=1 \target(lloop):=lloop
       NEXT lloop
       RESTORE 9990 \ FOR lloop:=1 TO 8 \ READ playN(lloop),playI(lloop) \NEXT lloop
-      RESTORE 9994 \ FOR lloop=1 TO 8 \ READ tribeN(lloop) \NEXT lloop
+      
       teststr:="" \filename:="Terk"
       PRINT "What is the name of this game ("; filename; ")";  \ INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
-      OPEN #path,filename+".dat":READ
+      OPEN #path,filename+".dat":UPDATE
       READ #path,token \ READ #path,rounds
       FOR lloop=1 TO 8
         READ #path,playN(lloop) \ READ #path,playX(lloop) \ READ #path,playY(lloop)
@@ -33,7 +32,9 @@ PROCEDURE consAdd
         IF playI(lloop)<0 THEN  \ PRINT " "; lloop; ": "; 
         ELSE  \ PRINT "    "; 
         ENDIF 
-        PRINT playN(lloop); " Tribe:"; tribeN(ABS(playI(lloop))); "  Score:"; playC(lloop); 
+        teststr:=playN(lloop)+"        " \teststr2:=LEFT$(teststr,8)
+        (* PAUSE 
+        PRINT teststr2; " Tribe:"; tribeN(ABS(playI(lloop))); "  Score:"; playC(lloop); 
         PRINT "  Leader:"; leader(lloop); "  host by: "; hosted(lloop)
         FOR yloop=1 TO 3 \ READ #path,playM(lloop,yloop) \NEXT yloop
         FOR yloop=1 TO 12 \ READ #path,playS(lloop,yloop) \NEXT yloop
@@ -71,7 +72,7 @@ PROCEDURE consAdd
       teststr:=""
       FOR xloop=1 TO 8
         IF xloop<>mloop THEN 
-          teststr:=teststr+LEFT$(tribeN(xloop),2)
+          teststr:=teststr+LEFT$(tribeN(xloop),1)+" "
         ENDIF 
       NEXT xloop
       LOOP 
@@ -88,15 +89,7 @@ PROCEDURE consAdd
       ENDLOOP 
       
       SEEK #path,0
-      FOR xloop=1 TO 2
-        FOR yloop=1 TO 64
-          FOR mloop=1 TO 64
-            tmp:=ASC(MID$(gscan(xloop,yloop),mloop,1))
-            WRITE #path,tmp
-          NEXT mloop
-        NEXT yloop
-      NEXT xloop
-      WRITE #path,token \ WRITE #path,rounds
+      READ #path,token \ READ #path,rounds
       FOR lloop=1 TO 8
         WRITE #path,playN(lloop) \ WRITE #path,playX(lloop) \ WRITE #path,playY(lloop)
         WRITE #path,playI(lloop) \ WRITE #path,playC(lloop) \ WRITE #path,playP(lloop)
@@ -111,5 +104,4 @@ PROCEDURE consAdd
       END 
       
  9990 DATA "player1",4,"nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5",-3,"mfalcon",-3,"tardis7",-4
- 9994 DATA " Books"," Toons"," Film"," Human"," "," "," "," "
  9995 DATA "SRVY","CHSE","LEAD","WING","RTB","    "

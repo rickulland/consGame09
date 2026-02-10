@@ -1,5 +1,5 @@
 PROCEDURE consMake
-      (* TerkMake jan31 - see TerkGame
+      (* TerkMake feb10 - see TerkGame
       (* game creator - split save
       DIM gscan(2,64):STRING[64]
       DIM tribeN(8),playN(8),playR(12):STRING[8]
@@ -52,7 +52,7 @@ PROCEDURE consMake
         PRINT "What is your tribe's name ("; tribeN(4); ")";  \ INPUT teststr2
         IF teststr2<>"" THEN  \tribeN(1):=teststr2 \ ENDIF 
         tmp:=ASC(LEFT$(tribeN(1),1))
-        IF tmp>90 THEN  \tmp:=tmp-32 \tribeN(1):=CHR$(tmp)+MID$(tribeN(1),2,99) \ ENDIF 
+        IF tmp>90 THEN  \tmp:=tmp+32 \tribeN(1):=CHR$(tmp)+MID$(tribeN(1),2,99) \ ENDIF 
       EXITIF SUBSTR(LEFT$(tribeN(1),1),teststr)=0 THEN 
       ENDEXIT 
         PRINT "Your tribe can't share initials with another."
@@ -199,5 +199,5 @@ PROCEDURE consMake
  9992 DATA "Antimatter (Warp, Main Pwr, Pulse, Shields)","Atomics (Impls, APU Pwr, Torpedos, Enviro)"
       DATA "Chemical (React, Batt Pwr, Mining, Consumable)"
  9993 DATA "*:nude star",350,"o:preciv",45,"@:suborbital",24,"O:orbital",8,"Q:galactic",4,"#:bases",4
- 9994 DATA "Books","Toons","Film","Human"," "," "," "," "
+ 9994 DATA "Books","Toons","Film ","Human"," "," "," "," "
  9995 DATA "SRVY","CHSE","LEAD","WING","RTB","    "
