@@ -1,5 +1,5 @@
-PROCEDURE consAddr
-      (* TerkAddr jan28 - address book
+PROCEDURE consBook
+      (* consBook feb12 - address book
       (* see TerkGame
       
       DIM commH(8):STRING[128] \(* site hostname
@@ -10,62 +10,69 @@ PROCEDURE consAddr
       DIM teststr,teststr2,filename:STRING[32]
       DIM path:BYTE
       DIM flag:BOOLEAN
-      flag:=FALSE \teststr:="" \filename:="Terk"
-      PRINT "What is the name of this address book("; filename; ")";  \ INPUT teststr
+      teststr:="" \filename:="Terk"
+      PRINT "What is the name of this game("; filename; ")";  \ INPUT teststr
       IF teststr<>"" THEN  \filename:=teststr \ ENDIF 
       ON ERROR GOTO 9960 \(* no file? make template
       OPEN #path,filename+".adr":UPDATE
  110  ON ERROR 
       GOSUB 9980 \(* read address file 
-      LOOP  \(* Enter a new site
-        IF flag=FALSE THEN 
-          GOSUB 9990 \(* print site table
-          site:=1
-          IF commH(1)<>"none" THEN 
-            INPUT "site number(1-8)? ",site
-          ENDIF 
-        ENDIF 
-      EXITIF commH(site)="none" OR flag=TRUE THEN 
-        PRINT "Player's chat name ("; commN(site); ")";  \ INPUT teststr
-        IF teststr<>"" THEN  \commN(site):=teststr \ ENDIF 
-        PRINT "Hostname for site ("; commH(site); ") ";  \ INPUT teststr
+      GOSUB 9990 \(* print site table
+      teststr:="y" \ INPUT "New site(y)? ",teststr
+      IF teststr<>"n" THEN 
+        FOR lloop=1 TO 8 \(* get next open slot
+          IF commH(lloop)="none" THEN 115
+        NEXT lloop
+      ENDIF  \(* "y" or no free slots
+      INPUT "Who to edit(1-8)? ",lloop
+ 115  site:=lloop
+ 120  PRINT "Using site "; site
+      PRINT "Player's chat name ("; commN(site); ")";  \ INPUT teststr
+      IF teststr<>"" THEN  \commN(site):=teststr \ ENDIF 
+      teststr:=" "
+      IF commH(site)="serial" THEN  \teststr:="s" \ ENDIF 
+      PRINT "(s)erial or (n)etwork connection ("; teststr; ")"; 
+      INPUT teststr
+      IF teststr="n" THEN 
+        PRINT "Hostname for site ("; commH(site); ")";  \ INPUT teststr
         IF teststr<>"" THEN  \commH(site):=teststr \ ENDIF 
-        IF commH(site)<>"serial" THEN 
-          teststr2:=""
-          FOR mloop=1 TO 4 \teststr2:=teststr2+STR$(commI(site,mloop))+"." \NEXT mloop
-          PRINT "External IP address as dotted quad ("; teststr2; ") "; 
-          INPUT teststr
-          IF teststr<>"" THEN 
-            teststr:=teststr+"."
-            FOR mloop=1 TO 4
-              tmp:=SUBSTR(".",teststr)
-              commI(site,mloop):=VAL(LEFT$(teststr,tmp-1))
-              teststr:=MID$(teststr,tmp+1,99)
-            NEXT mloop
-            PRINT "Ephemeral port [we add 49152] ("; commP(site); ") "; 
-            INPUT teststr \ IF teststr<>"" THEN  \commP(site):=VAL(teststr) \ ENDIF 
+ 130    ON ERROR GOTO 130
+        teststr2:=""
+        FOR mloop=1 TO 4 \teststr2:=teststr2+STR$(commI(site,mloop))+"." \NEXT mloop
+        PRINT "External IP address as dotted quad ("; teststr2; ") "; 
+        INPUT teststr
+        IF teststr<>"" THEN 
+          teststr:=teststr+"."
+          FOR mloop=1 TO 4
+            tmp:=SUBSTR(".",teststr)
+            commI(site,mloop):=VAL(LEFT$(teststr,tmp-1))
+            teststr:=MID$(teststr,tmp+1,99)
+          NEXT mloop
+          ON ERROR 
+          commP(site):=1
+          PRINT "Ephemeral port 1-256 [we add 49152] ("; commP(site); ")"; 
+          INPUT teststr \ IF teststr<>"" THEN  \commP(site):=VAL(teststr)
           ENDIF 
-        ELSE 
-          PRINT "Serial port("; commS(site); ") "; 
-          INPUT teststr \ IF teststr<>"" THEN  \commS(site):=teststr \ ENDIF 
-          PRINT "Phone number as [1112223333] ("; commT(site); ")? "; 
-          INPUT teststr \ IF teststr<>"" THEN  \commT(site):=teststr \ ENDIF 
         ENDIF 
-      ENDEXIT 
-        INPUT "That site is in use. Edit anyway(y/n)? ",teststr
-        IF teststr="y" THEN  \flag:=TRUE \ ENDIF 
-      ENDLOOP 
-      GOSUB 9990
-      LOOP 
-        INPUT "(w)rite this, or (c)hange something? ",teststr
-      EXITIF SUBSTR(teststr,"wc")>0 THEN 
-      ENDEXIT 
-      ENDLOOP 
-      IF teststr="w" THEN 
-        GOSUB 9970 \ CLOSE #path
       ELSE 
-        flag:=TRUE \ SEEK #path,0 \ GOTO 110
+        commS(site):="/t2"
+        PRINT "Serial port("; commS(site); ")"; 
+        INPUT teststr \ IF teststr<>"" THEN  \commS(site):=teststr \ ENDIF 
+        commT(site):="direct"
+        PRINT "Phone number as [1112223333] ("; commT(site); ")"; 
+        INPUT teststr \ IF teststr<>"" THEN  \commT(site):=teststr \ ENDIF 
+        commP(site):=0 \commH(site):="serial"
       ENDIF 
+      GOSUB 9990 \ PRINT "(w)rite this, or (c)hange player "; commN(site); 
+      INPUT teststr
+      IF teststr="w" THEN 
+        GOSUB 9970
+      ELSE 
+        flag:=TRUE \ SEEK #path,0 \ GOTO 120
+      ENDIF 
+      teststr:="n" \ INPUT "Run again (n)",teststr
+      IF teststr="y" THEN 110
+      CLOSE #path
       END 
       
  9960 (* init site table
@@ -73,7 +80,7 @@ PROCEDURE consAddr
       FOR site=1 TO 8
         commN(site):="player"+STR$(site) \commH(site):="none"
         (* IF site=1 THEN \ commH(site):="localhost.localdomain" \ ENDIF
-        commS(site):="/t2" \commP(site):=1
+        commS(site):="    " \commP(site):=0 \commT(site):="          "
         FOR lloop=1 TO 4 \commI(site,lloop):=0 \NEXT lloop
       NEXT site
       GOSUB 9970 \(* write empty address file
@@ -90,29 +97,35 @@ PROCEDURE consAddr
         NEXT lloop
         WRITE #path,commP(site)
       NEXT site
+      SEEK #path,0
       RETURN 
       
- 9980 (* read mloop table
-      FOR mloop=1 TO 8
-        READ #path,commN(mloop) \ READ #path,commH(mloop) \
-        READ #path,commS(mloop)
+ 9980 (* read site table
+      FOR site=1 TO 8
+        READ #path,commN(site) \ READ #path,commH(site) \
+        READ #path,commS(site)
         FOR lloop=1 TO 4
-          READ #path,commI(mloop,lloop)
+          READ #path,commI(site,lloop)
         NEXT lloop
-        READ #path,commP(mloop)
-      NEXT mloop
+        READ #path,commP(site)
+      NEXT site
       RETURN 
       
  9990 (* print site table
       PRINT 
       FOR mloop=1 TO 8
-        PRINT mloop; " "; commN(mloop); " @ ";  \ PRINT commH(mloop); "   IP: "; 
-        FOR lloop=1 TO 4
-          PRINT commI(mloop,lloop); 
-          IF lloop<4 THEN  \ PRINT ".";  \ ELSE PRINT ":";  \ ENDIF
-        NEXT lloop
-        PRINT commP(mloop)
-        PRINT "   port: "; commS(mloop); "  phone: "; commT(mloop)
+        PRINT  \ PRINT mloop; "   "; commN(mloop); ": "; commH(mloop); 
+        IF commP(mloop)>0 THEN 
+          PRINT " IP:"; 
+          FOR lloop=1 TO 4
+            PRINT commI(mloop,lloop); 
+            IF lloop<4 THEN  \ PRINT ".";  \ ELSE PRINT ":";  \ ENDIF
+          NEXT lloop
+          PRINT commP(mloop)
+        ENDIF 
+        IF commH(mloop)="serial" THEN 
+          PRINT " port:"; commS(mloop); "  phone: "; commT(mloop)
+        ENDIF 
       NEXT mloop
       PRINT 
       RETURN 
