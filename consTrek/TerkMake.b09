@@ -1,5 +1,5 @@
 PROCEDURE consMake
-      (* TerkMake feb10 - see TerkGame
+      (* TerkMake feb21 - see TerkGame
       (* game creator - split save
       DIM gscan(2,64):STRING[64]
       DIM tribeN(8),playN(8),playR(12):STRING[8]
@@ -28,6 +28,10 @@ PROCEDURE consMake
       FOR lloop=1 TO 6 \ READ planN(lloop) \NEXT lloop
       teststr:="" \token:=1
       FOR xloop=2 TO 8 \teststr:=teststr+" "+LEFT$(playN(xloop),1) \NEXT xloop
+      tmp0:=0 \tmp:=RND(-1) \(* obfuscate RNG
+      tmp:=VAL(MID$(DATE$,13,2)) \tmp:=tmp+VAL(MID$(DATE$,16,2))
+      FOR lloop=1 TO tmp \tmp0:=RND(0) \NEXT lloop
+      
       LOOP 
         PRINT "Name must be 8 char lowercase, initial can't be: "+teststr
         INPUT "What is your name (player1)",teststr2
@@ -80,7 +84,7 @@ PROCEDURE consMake
         NEXT xloop
         PRINT "."; 
       NEXT yloop
-      PRINT  \ PRINT "Casting orbits..."; 
+      PRINT  \ PRINT "Raising orbits..."; 
       FOR mloop=1 TO syst(1) \(* create galaxy
         PRINT "."; 
         LOOP 
@@ -122,7 +126,7 @@ PROCEDURE consMake
         LOOP 
           LOOP 
             testx:=INT(RND(64)+1) \testy:=INT(RND(64)+1)
-          EXITIF testx<17 OR testx>47 AND testy<17 OR testy>47 THEN
+          EXITIF testx<17 OR testx>47 AND testy<17 OR testy>47 THEN                
           ENDEXIT 
           ENDLOOP 
           flags:=FALSE

@@ -1,6 +1,6 @@
 PROCEDURE consSpy
-      (* TerkSpy jan22 - see TerkGame
-      (* player edit
+      (* TerkSpy feb13 - see TerkGame
+      (* alpha
       DIM sysname,filename:STRING[80]
       DIM gscan(2,64):STRING[64]
       DIM teststr,teststr2:STRING[16]
@@ -42,20 +42,53 @@ PROCEDURE consSpy
         
         IF cmd0=3 THEN  \(* dump map
           GOSUB 2620 \(* load map
+          PRINT \ PRINT "Dump galaxy:"
           FOR yloop=1 TO 64
-            PRINT yloop; "|"; gscan(1,yloop); "|"
-            IF MOD(yloop,16)=0 THEN  \ PRINT yloop;  \ INPUT a$ \ ENDIF 
-            IF MOD(yloop,64)=0 THEN  \ PRINT "next";  \ INPUT a$ \ ENDIF 
+            IF yloop<10 THEN  \ PRINT " ";  \ ENDIF 
+            PRINT yloop; " "; 
+            FOR xloop=1 TO 57 STEP 8
+              PRINT MID$(gscan(1,yloop),xloop,8); "|"; 
+            NEXT xloop
+            PRINT 
+            PRINT "   "; 
+            FOR xloop=1 TO 57 STEP 8
+              FOR lloop=0 TO 7
+                testx:=lloop+xloop \testy:=yloop \ GOSUB 9008
+                IF tint(1)>0 THEN 
+                  tmp:=4
+                  IF tint(2)>0 THEN  
+                    tmp:=6
+                  ELSE 
+                    IF tint(3)>0 THEN  \tmp:=5 \ ENDIF 
+                  ENDIF 
+                  IF tint(2)>0 AND tint(3)>0 THEN  \tmp:=7 \ ENDIF 
+                ELSE 
+                  IF tint(2)>0 THEN  \tmp:=2
+                    IF tint(3)>0 THEN  \tmp:=3 \ ENDIF 
+                  ELSE 
+                    IF tint(3)>0 THEN  \tmp:=1 \ ENDIF 
+                  ENDIF 
+                ENDIF 
+                IF tmp>0 THEN  \char:=STR$(tmp) \ ELSE  \char:=":" \ ENDIF 
+                PRINT char; 
+              NEXT lloop
+              PRINT ":"; 
+            NEXT xloop
+            PRINT 
+            IF MOD(yloop,8)=0 THEN 
+              IF MOD(yloop,16)=0 THEN 
+                PRINT sysname
+              ELSE 
+                PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN(4),playN(5),playN(6),playN(7),playN(8)
+                PRINT "M/am - Atomic - Chemical  1) C  2) A  3) C+A  4) M  5) M+C  6) M+A  7) all" 
+              ENDIF 
+              INPUT "q=quit ",a$
+              IF a$="q" THEN  2420 
+            ENDIF 
           NEXT yloop
-          FOR yloop=1 TO 64
-            PRINT gscan(2,yloop); "."; 
-            PRINT "==="; yloop \ PRINT 
-            IF MOD(yloop,8)=0 THEN  \ PRINT "next";  \ INPUT a$ \ ENDIF 
-          NEXT yloop
-          PRINT 
-          GOTO 2420
-        ENDIF 
-        
+          RETURN 
+        ENDIF
+
         IF cmd0=2 THEN  \(* edit player
           FOR lloop=1 TO 8 \ PRINT lloop; ") "; playN(lloop) \NEXT lloop \ ENDIF 
         INPUT "Player to change? ",testp \ GOSUB 8000 \ PRINT 

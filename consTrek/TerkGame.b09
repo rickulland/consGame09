@@ -1,6 +1,6 @@
 PROCEDURE consGame
-      (* TerkGame jan12 - terminal game for Basic09
-      (* play debug & balance
+      (* TerkGame feb20 - terminal game for Basic09
+      (* play debug & balance, split save,
       
       DIM gscan(2,64):STRING[64]
       DIM fscan(3):STRING[32]
@@ -30,8 +30,11 @@ PROCEDURE consGame
       NEXT lloop
       RESTORE 9995
       FOR lloop=1 TO 6 \ READ planN(lloop) \NEXT lloop
+      tmp0:=0 \tmp:=RND(-1) \(* obfuscate RNG
+      tmp:=VAL(MID$(DATE$,13,2)) \tmp:=tmp+VAL(MID$(DATE$,16,2))
+      FOR lloop=1 TO tmp \tmp0:=RND(0) \NEXT lloop
       
-      teststr:="o" \me:=1 \(* ************************** not always
+      teststr:="o" \me:=1 \(* FIXME  not always site 1
       FOR xloop=2 TO 8
         teststr:=teststr+" "+LEFT$(playN(xloop),1)
       NEXT xloop
@@ -148,7 +151,6 @@ PROCEDURE consGame
         IF cmd=0 THEN 1050
  1060   ON cmd GOSUB 2000,2100,2200,2300,2600
         IF flags(4)=FALSE THEN  \flags(4):=TRUE \ GOTO 1060 \ ENDIF
-         
  1070 ENDLOOP 
       
  2000 (* engines
@@ -483,13 +485,16 @@ PROCEDURE consGame
       PRINT  \ PRINT "Loading Game. please wait..."
       OPEN #path,filename+".map":READ
       FOR xloop=1 TO 2
+        PRINT 
         FOR yloop=1 TO 64
+          PRINT "."; 
           gscan(xloop,yloop):=""
           FOR mloop=1 TO 64
             READ #path,tmp \gscan(xloop,yloop):=gscan(xloop,yloop)+CHR$(tmp)
           NEXT mloop
         NEXT yloop
       NEXT xloop
+      PRINT 
       CLOSE #path
       OPEN #path,filename+".dat":READ
       READ #path,token \ READ #path,rounds
@@ -642,8 +647,8 @@ PROCEDURE consGame
       IF tmp4=0 THEN  \tmp4:=8 \ ENDIF  \(* set def.RTB spd
       testx:=playX(token) \testy:=playY(token) \(* lift player
       GOSUB 9013
-      tmp0:=tribeX(token) \tmp1:=playX(token)
-      tmp2:=tribeY(token) \tmp3:=playY(token)
+      tmp0:=tribeX(ABS(playI(token))) \tmp1:=playX(token)
+      tmp2:=tribeY(ABS(playI(token))) \tmp3:=playY(token)
       GOSUB 9003 \tribeX(token):=glxX \tribeY(token):=glxY
       testx:=playX(token) \testy:=playY(token) \ GOSUB 9014
       playP(token):=1 \playX(token):=testx \playY(token):=testy \(* drop player
@@ -675,7 +680,7 @@ PROCEDURE consGame
                 dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(* shield & warp
                 PRINT " Pulse result: "; randl; "% M/AM damage to "; playN(play); "."
                 rlmt:=pin \randl:=0 \ GOSUB 9010
-                dist0:=randl \cmd0:=63 \targ0:=1 \ GOSUB 2500 \(* shield & main
+                dist0:=randl \cmd0:=63 \targ0:=4 \ GOSUB 2500 \(* shield & main
               ENDIF 
               IF cmd=22 THEN  \(* torpedo damage one random system
                 rlmt=12 \randl:=-1 \ GOSUB 9010
@@ -885,6 +890,7 @@ PROCEDURE consGame
       
  9900 (* death screen
       PRINT "You died!"
+      PAUSE 
       END 
       
  9990 DATA "nimbus",-2,"wayfarer",-1,"hrtgold",-1,"axiom",-2,"eagle5",-3,"mfalcon",-3,"tardis7",-4
