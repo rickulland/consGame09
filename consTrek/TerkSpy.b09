@@ -1,5 +1,5 @@
 PROCEDURE consSpy
-      (* TerkSpy feb13 - see TerkGame
+      (* TerkSpy mar2 - see TerkGame
       (* alpha
       DIM sysname,filename:STRING[80]
       DIM gscan(2,64):STRING[64]
@@ -11,8 +11,8 @@ PROCEDURE consSpy
       DIM tribeX(8),tribeY(8),target(8),leader(8),tint(3),rint(3),hosted(8):INTEGER
       DIM tmp,tmp0,tmp1,tmp2,testp,testx,testy,lloop,mloop,xloop,yloop,glvl,token,rounds:INTEGER
       DIM path,path2:BYTE
-      DIM played(8),saveme,savemap:BOOLEAN
-      saveme:=FALSE \ savemap:=FALSE
+      DIM played(8),saveme,savemap,longmap,havemap:BOOLEAN
+      longmap:=FALSE \havemap:=FALSE \saveme:=FALSE \savemap:=FALSE
       RESTORE 9991 \ FOR lloop=1 TO 12 \ READ playR(lloop) \NEXT lloop
       RESTORE 9993 \sysname:=" "
       FOR lloop:=1 TO 6
@@ -35,64 +35,72 @@ PROCEDURE consSpy
         INPUT "   3) Dump map   4) Quit ?",cmd0
       EXITIF cmd0>3 THEN 
       ENDEXIT 
+        PRINT 
         IF cmd0=1 THEN  \(* dump all players
           FOR testp:=1 TO 8 \ GOSUB 8000 \NEXT testp
           GOTO 2420
         ENDIF 
         
         IF cmd0=3 THEN  \(* dump map
-          GOSUB 2620 \(* load map
-          PRINT \ PRINT "Dump galaxy:"
+          INPUT " Map display:  1) Full or 2) Summary ?",a$
+          longmap:=TRUE \ IF SUBSTR(a$,"2Ss")>0 THEN  \longmap:=FALSE \ ENDIF 
+          IF havemap=FALSE THEN  \ GOSUB 2620 \ ENDIF  \(* load map
+          PRINT  \ PRINT "Dump galaxy:"
           FOR yloop=1 TO 64
             IF yloop<10 THEN  \ PRINT " ";  \ ENDIF 
             PRINT yloop; " "; 
             FOR xloop=1 TO 57 STEP 8
               PRINT MID$(gscan(1,yloop),xloop,8); "|"; 
             NEXT xloop
-            PRINT 
-            PRINT "   "; 
-            FOR xloop=1 TO 57 STEP 8
-              FOR lloop=0 TO 7
-                testx:=lloop+xloop \testy:=yloop \ GOSUB 9008
-                IF tint(1)>0 THEN 
-                  tmp:=4
-                  IF tint(2)>0 THEN  
-                    tmp:=6
+            IF longmap=TRUE THEN 
+              PRINT 
+              PRINT "   "; 
+              FOR xloop=1 TO 57 STEP 8
+                FOR lloop=0 TO 7
+                  testx:=lloop+xloop \testy:=yloop \ GOSUB 9008
+                  IF tint(1)>0 THEN 
+                    tmp:=4
+                    IF tint(2)>0 THEN 
+                      tmp:=6
+                    ELSE 
+                      IF tint(3)>0 THEN  \tmp:=5 \ ENDIF 
+                    ENDIF 
+                    IF tint(2)>0 AND tint(3)>0 THEN  \tmp:=7 \ ENDIF
                   ELSE 
-                    IF tint(3)>0 THEN  \tmp:=5 \ ENDIF 
+                    IF tint(2)>0 THEN  \tmp:=2
+                      IF tint(3)>0 THEN  \tmp:=3 \ ENDIF 
+                    ELSE 
+                      IF tint(3)>0 THEN  \tmp:=1 \ ENDIF 
+                    ENDIF 
                   ENDIF 
-                  IF tint(2)>0 AND tint(3)>0 THEN  \tmp:=7 \ ENDIF 
-                ELSE 
-                  IF tint(2)>0 THEN  \tmp:=2
-                    IF tint(3)>0 THEN  \tmp:=3 \ ENDIF 
-                  ELSE 
-                    IF tint(3)>0 THEN  \tmp:=1 \ ENDIF 
-                  ENDIF 
-                ENDIF 
-                IF tmp>0 THEN  \char:=STR$(tmp) \ ELSE  \char:=":" \ ENDIF 
-                PRINT char; 
-              NEXT lloop
-              PRINT ":"; 
-            NEXT xloop
+                  IF tmp>0 THEN  \char:=STR$(tmp) \ ELSE  \char:="_" \ ENDIF 
+                  PRINT char; 
+                NEXT lloop
+                PRINT "|"; 
+              NEXT xloop
+            ENDIF 
             PRINT 
-            IF MOD(yloop,8)=0 THEN 
-              IF MOD(yloop,16)=0 THEN 
+            tmp2:=16 \ IF longmap=TRUE THEN  \tmp2:=8 \ ENDIF 
+            IF MOD(yloop,tmp2)=0 THEN 
+              IF MOD(yloop,tmp2*2)=0 THEN 
                 PRINT sysname
               ELSE 
                 PRINT USING "8(s9>)",playN(1),playN(2),playN(3),playN(4),playN(5),playN(6),playN(7),playN(8)
-                PRINT "M/am - Atomic - Chemical  1) C  2) A  3) C+A  4) M  5) M+C  6) M+A  7) all" 
+                IF longmap=TRUE THEN 
+                  PRINT "M/am - Atomic - Chemical  1) C  2) A  3) C+A  4) M  5) M+C  6) M+A  7) all"
+                ENDIF 
               ENDIF 
               INPUT "q=quit ",a$
-              IF a$="q" THEN  2420 
+              IF a$="q" THEN 2420
             ENDIF 
           NEXT yloop
           RETURN 
-        ENDIF
-
+        ENDIF 
+        
         IF cmd0=2 THEN  \(* edit player
           FOR lloop=1 TO 8 \ PRINT lloop; ") "; playN(lloop) \NEXT lloop \ ENDIF 
-        INPUT "Player to change? ",testp \ GOSUB 8000 \ PRINT 
-        INPUT " 1)Name   2)X,Y Pos.   3)Tribe   4)Plan   5)Stores   6)Stats   7)Exit ? ",cmd
+        INPUT "Player to change? ",testp \ PRINT  \ GOSUB 8000 \ PRINT
+        INPUT " 1)Name   2)X,Y Pos   3)Tribe   4)Plan   5)Cargo   6)Stores   7)Stats   8)Exit ? ",cmd
         
         IF cmd=1 THEN  \(* change name
           PRINT "----- "; playN(lloop) \ INPUT teststr
@@ -138,24 +146,31 @@ PROCEDURE consSpy
           ENDIF 
         ENDIF 
         
-        IF cmd=5 THEN  \(* change Cargo/Stores
+        IF cmd=5 THEN  \(* change Cargo
           testx:=playX(testp) \testy:=playY(testp) \ GOSUB 9008 \(* get tint()
-          INPUT "Input 3 digit cargo as: MAM(0-2)Atm(0-5)Chm(0-5)",a$
-          IF a$<>"" THEN tmp1:=VAL(a$) \saveme:=TRUE \ ENDIF 
-          IF tmp1>255 THEN  \tmp1:=255 \ ENDIF 
-          testx:=playX(testp) \testy:=playY(testp)
-          char:=CHR$(tmp1) \glvl:=2 \ GOSUB 9000 \glvl:=1
-          
+          FOR lloop=1 TO 3
+            tmp0:=5 \ IF lloop=1 THEN  \tmp0:=2 \ ENDIF 
+            teststr2:=MID$("MAMAtmChm",lloop*3-2,3)
+            PRINT "Cargo: "; teststr2; "(0-"; tmp0; "): ";  \ INPUT tmp2
+            IF tmp2>0 THEN 
+              IF tmp2>tmp0 THEN tmp2:=tmp0 \ ENDIF 
+              tint(lloop):=tmp2 \savemap:=TRUE
+            ENDIF 
+          NEXT lloop
+          IF savemap=TRUE THEN  \ GOSUB 9009 \ ENDIF 
+        ENDIF 
+        
+        IF cmd=6 THEN  \(* change stores
           FOR lloop=1 TO 3
             teststr2:=MID$("MAMAtmChm",lloop*3-2,3)
             PRINT " Stores: "; teststr2; "(0-100): ";  \ INPUT a$
-            IF a$<>"" THEN tmp1:=VAL(a$) \saveme:=TRUE \ ENDIF 
+            tmp1:=0 \ IF a$<>"" THEN tmp1:=VAL(a$) \saveme:=TRUE \ ENDIF 
             IF tmp1>100 THEN  \tmp1:=100 \ ENDIF 
-            playM(testp,lloop):=tmp1
+            IF tmp1>0 THEN  \playM(testp,lloop):=tmp1 \ ENDIF 
           NEXT lloop
         ENDIF 
         
-        IF cmd=6 THEN  \(* change Stats             
+        IF cmd=7 THEN  \(* change Stats             
           LOOP 
             PRINT 
             FOR yloop=1 TO 12 \ PRINT yloop; ") "; playR(yloop); "="; playS(testp,yloop) \NEXT yloop
@@ -215,10 +230,11 @@ PROCEDURE consSpy
       END 
       
  2620 (* Load/reload game
-      PRINT "Map file to load ("; filename; ")"; 
+      PRINT " Map file to load ("; filename; ")"; 
       INPUT teststr \ IF teststr="" THEN  \teststr:=filename \ ENDIF
       OPEN #path,teststr+".map":READ
       FOR xloop=1 TO 2
+        PRINT 
         FOR yloop=1 TO 64
           PRINT "."; 
           gscan(xloop,yloop):=""
@@ -228,6 +244,7 @@ PROCEDURE consSpy
         NEXT yloop
       NEXT xloop
       CLOSE #path
+      havemap:=TRUE
       RETURN 
       
  2625 (* load data

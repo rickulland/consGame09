@@ -81,7 +81,7 @@
 	3030 - tribemen shoot after drop off
 	3040 - return to base for matl
 
-## utiltiy stuff
+## utilty stuff
 
 9000 - map insert - in: testx, testy, glvl, char \ mod:gscan
 9001 - step right until clear - in:testx, testy  \ mod: glxX,glxY

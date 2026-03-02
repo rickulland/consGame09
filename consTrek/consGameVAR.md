@@ -31,11 +31,11 @@ sysname:STRING[80]	- system names
 random(3):REAL		- shared random numbers
 flags(6):BOOLEAN 	
             1-Map Legend 
-			2-Spy mode - show each players turn
-			3-extended Debug Msgs 
-			4-subr cost a turn? - set false 
-			5-init: player density DC: raw matl ???
-			6-DC: repair matl ???
+			2-show each players turn
+			3-make play tracker file 
+			4-does subr cost a turn? 
+			5-init: player density  DC: true=repair
+			6-AI ran DC (end turn)
 playR(12):STRING[8]     - resource names
 planN(5):STRING[4]      - player plan names
 

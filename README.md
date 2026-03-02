@@ -1,6 +1,8 @@
 This doc coves the overall state of the program, ending with the current bug list. Program specific .md files are in those programs subdirs. 
 
-From 10000 feet, the real world consists of 1 to 8 physical sites. Each site supports one person and up to 7 AI, and every game begins with 8 players in four tribes. 
+This weeks fixes - damage control does something, better map handling/display in terkSpy.
+
+Summary: the real world consists of 1 to 8 physical sites. Each site supports one person and up to 7 AI, and every game begins with 8 players in four tribes. 
 
 A new game starts by saving a save file:-) **TerkMake.b09** creates a galaxy, inputs your name and creates 7 AI players. The resulting file can be played alone or become the seed of a multiplayer game. **TerkAdd.b09** replaces AI players with additional sites, adding one person per site and dividing the AI load between sites. A parallel program **TerkBook.b09** maintains contact info *(chat name, hostname/IP or port/phone number)* for each site as a separate file to share between games. 
 
